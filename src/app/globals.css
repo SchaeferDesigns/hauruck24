@@ -148,7 +148,6 @@
   /* Scrollsperre, wenn das mobile Menue offen ist */
   body[data-scroll-locked="true"] {
     overflow: hidden;
-    touch-action: none;
   }
 
   img,

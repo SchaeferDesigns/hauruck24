@@ -1,0 +1,29 @@
+{
+  "name": "hauruck24",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Website Hauruck24 & Co, Schwaebisch Gmuend",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "motion": "13.4.0",
+    "lucide-react": "1.47.0",
+    "nodemailer": "10.0.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "@types/node": "24.10.1",
+    "@types/react": "19.3.1",
+    "@types/react-dom": "19.3.1",
+    "@types/nodemailer": "7.0.4"
+  }
+}

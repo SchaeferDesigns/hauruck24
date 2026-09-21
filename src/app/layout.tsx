@@ -80,11 +80,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={`${inter.variable} ${jakarta.variable}`}>
-      <body id="top" className="min-h-dvh antialiased">
+      <body id="top" className="min-h-dvh pb-24 antialiased lg:pb-0">
         <Background />
         <Navbar />
 
-        <main id="inhalt" className="relative pt-24 pb-24 sm:pt-28 lg:pb-0">
+        <main id="inhalt" className="relative pt-24 sm:pt-28">
           {children}
         </main>
 

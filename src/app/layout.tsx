@@ -1,9 +1,99 @@
+import type { Metadata, Viewport } from "next";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import Background from "@/components/layout/Background";
+import Footer from "@/components/layout/Footer";
+import MobileActionBar from "@/components/layout/MobileActionBar";
+import Navbar from "@/components/layout/Navbar";
+import { LocalBusinessJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
+import { site } from "@/content/site";
+
+/* Schriften werden beim Build heruntergeladen und lokal ausgeliefert.
+   Es entsteht keine Verbindung des Besuchers zu Google. */
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700", "800"],
+  variable: "--font-jakarta",
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  title: {
+    default: `${site.name} | ${site.claim}`,
+    template: `%s | ${site.shortName}`,
+  },
+  description: site.description,
+  applicationName: site.shortName,
+  generator: "Next.js",
+  keywords: [
+    "Umzug Schwäbisch Gmünd",
+    "Umzugsunternehmen Schwäbisch Gmünd",
+    "Entrümpelung Schwäbisch Gmünd",
+    "Haushaltsauflösung Schwäbisch Gmünd",
+    "Kleintransporte Schwäbisch Gmünd",
+    "Lagerraum Schwäbisch Gmünd",
+    "Hussenhofen",
+    "Ostalbkreis",
+  ],
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.creator.label,
+  publisher: site.name,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    url: site.url,
+    siteName: site.name,
+    title: `${site.name} | ${site.claim}`,
+    description: site.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} | ${site.claim}`,
+    description: site.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  category: "Umzug und Entrümpelung",
+  formatDetection: { telephone: true, address: true, email: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#04070d",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
-      <body>{children}</body>
+    <html lang="de" className={`${inter.variable} ${jakarta.variable}`}>
+      <body id="top" className="min-h-dvh pb-24 antialiased lg:pb-0">
+        <Background />
+        <Navbar />
+
+        <main id="inhalt" className="relative pt-24 sm:pt-28">
+          {children}
+        </main>
+
+        <Footer />
+        <MobileActionBar />
+
+        <LocalBusinessJsonLd />
+        <WebSiteJsonLd />
+      </body>
     </html>
   );
 }

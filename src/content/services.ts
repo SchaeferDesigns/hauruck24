@@ -3,6 +3,8 @@ export type Service = {
   label: string;
   title: string;
   lead: string;
+  /** Sehr kurze Beschreibung fuer enge Karten */
+  hook: string;
   icon: "truck" | "trash" | "home" | "package" | "warehouse";
   /** Kurzbeschreibung für Karten und Übersichten */
   teaser: string;
@@ -22,6 +24,7 @@ export const services: Service[] = [
     label: "Umzug",
     title: "Umzug in und um Schwäbisch Gmünd",
     lead: "Wir tragen, fahren und bauen auf, damit Ihr Umzugstag planbar bleibt.",
+    hook: "Tragen, fahren, aufbauen",
     icon: "truck",
     teaser:
       "Wohnungsumzug mit eigenem Fahrzeug, Tragehilfe, Möbelmontage und Termin auch am Samstag.",
@@ -62,6 +65,7 @@ export const services: Service[] = [
     label: "Entrümpelung",
     title: "Entrümpelung von Keller, Dachboden und Garage",
     lead: "Wir räumen, sortieren und entsorgen, Sie bekommen eine leere Fläche zurück.",
+    hook: "Räumen, trennen, entsorgen",
     icon: "trash",
     teaser:
       "Keller, Dachboden, Garage, Gartenhaus oder Gewerbefläche zügig räumen und fachgerecht entsorgen.",
@@ -102,6 +106,7 @@ export const services: Service[] = [
     label: "Haushaltsauflösung",
     title: "Haushaltsauflösung mit besenreiner Übergabe",
     lead: "Ein Ansprechpartner für den kompletten Haushalt, vom ersten Karton bis zur Schlüsselübergabe.",
+    hook: "Komplett und besenrein",
     icon: "home",
     teaser:
       "Komplette Wohnung oder Haus auflösen, Unterlagen sichern, Wertsachen aussortieren, besenrein übergeben.",
@@ -142,6 +147,7 @@ export const services: Service[] = [
     label: "Kleintransporte",
     title: "Kleintransporte und Einzelstücke",
     lead: "Ein Stück, ein Termin, ein Anruf. Auch kurzfristig, wenn der Kalender es zulässt.",
+    hook: "Ein Stück, ein Termin",
     icon: "package",
     teaser:
       "Sofa, Küchengerät, Baumarktfracht oder Sperrmüll: schnell abgeholt und dorthin gebracht, wo es hin soll.",
@@ -182,6 +188,7 @@ export const services: Service[] = [
     label: "Lagerraum",
     title: "Lagerraum und Einlagerung",
     lead: "Die Zwischenlösung für die Lücke zwischen Auszug und Einzug.",
+    hook: "Trocken zwischenlagern",
     icon: "warehouse",
     teaser:
       "Möbel und Kartons trocken einlagern, wenn der Einzugstermin später liegt als der Auszug.",

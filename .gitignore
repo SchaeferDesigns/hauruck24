@@ -18,3 +18,25 @@ coverage/
 .ssh/
 .local-runtime/
 .codex/auth.json
+
+# Screenshots aus der visuellen Pruefung
+tools/screens/
+
+# SDA: private files and generated artifacts
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+.ssh/
+.local-runtime/
+.codex/auth.json

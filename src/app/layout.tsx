@@ -79,7 +79,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="de" data-scroll-behavior="smooth" className={`${inter.variable} ${jakarta.variable}`}>
       <body id="top" className="min-h-dvh pb-24 antialiased lg:pb-0">
         <Background />
         <Navbar />

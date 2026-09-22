@@ -424,3 +424,94 @@
     min-width: 44px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Rechtstexte
+   Formatierung fuer den aus der HTML-Datei geladenen Inhalt.
+   -------------------------------------------------------------------------- */
+
+.legal-prose {
+  color: var(--color-mist-200);
+  font-size: 0.975rem;
+  line-height: 1.75;
+}
+
+.legal-prose h1,
+.legal-prose h2,
+.legal-prose h3,
+.legal-prose h4 {
+  margin-block: 2rem 0.75rem;
+  line-height: 1.25;
+}
+
+.legal-prose h1 {
+  font-size: 1.75rem;
+}
+
+.legal-prose h2 {
+  font-size: 1.35rem;
+}
+
+.legal-prose h3 {
+  font-size: 1.1rem;
+}
+
+.legal-prose > :first-child {
+  margin-top: 0;
+}
+
+.legal-prose p,
+.legal-prose ul,
+.legal-prose ol,
+.legal-prose table {
+  margin-block: 0 1rem;
+}
+
+.legal-prose ul,
+.legal-prose ol {
+  padding-left: 1.35rem;
+}
+
+.legal-prose ul {
+  list-style: disc;
+}
+
+.legal-prose ol {
+  list-style: decimal;
+}
+
+.legal-prose li {
+  margin-block: 0.35rem;
+}
+
+.legal-prose strong,
+.legal-prose b {
+  color: var(--color-mist-50);
+  font-weight: 600;
+}
+
+.legal-prose a {
+  color: var(--color-brand-300);
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+
+.legal-prose hr {
+  margin-block: 2rem;
+  border: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.legal-prose table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.legal-prose th,
+.legal-prose td {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  text-align: left;
+  vertical-align: top;
+}

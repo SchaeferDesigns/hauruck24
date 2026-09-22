@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  /* Die Rechtstexte werden zur Laufzeit aus dem Dateisystem gelesen
+     und muessen deshalb im Deployment enthalten sein. */
+  outputFileTracingIncludes: {
+    "/impressum": ["./src/content/legal/**"],
+    "/datenschutz": ["./src/content/legal/**"],
+    "/agb": ["./src/content/legal/**"],
+    "/widerruf": ["./src/content/legal/**"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

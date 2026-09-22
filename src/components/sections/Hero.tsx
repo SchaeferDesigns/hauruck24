@@ -120,7 +120,7 @@ export default function Hero() {
               initial={reduce ? false : { opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-6 font-display text-4xl leading-[1.04] sm:text-5xl lg:text-[3.9rem]"
+              className="mt-6 font-display text-[2.6rem] leading-[1.05] sm:text-5xl lg:text-[3.4rem] xl:text-[3.75rem]"
             >
               Umzug und Entrümpelung
               <span className="block text-gradient">in Schwäbisch Gmünd</span>
@@ -213,8 +213,8 @@ export default function Hero() {
                         <span className="block font-display text-base font-semibold text-mist-50">
                           {service.label}
                         </span>
-                        <span className="mt-0.5 block truncate text-xs text-mist-400">
-                          {service.lead}
+                        <span className="mt-0.5 block text-xs text-mist-400">
+                          {service.hook}
                         </span>
                       </span>
                       <ArrowRight

@@ -609,3 +609,51 @@
     animation: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Lichtreflex auf Glas
+   Folgt dem Zeiger, nur bei Maus oder Trackpad. Die Position setzt
+   SheenTracker als --mx und --my.
+   -------------------------------------------------------------------------- */
+
+@media (hover: hover) and (pointer: fine) {
+  .sheen::before,
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out-soft);
+  }
+
+  /* Weicher Glanz auf der Flaeche */
+  .sheen::before {
+    background: radial-gradient(
+      520px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 255 255 / 0.085),
+      transparent 45%
+    );
+  }
+
+  /* Leuchtende Kante, nur als Ring sichtbar */
+  .sheen::after {
+    padding: 1px;
+    background: radial-gradient(
+      360px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 196 120 / 0.8),
+      transparent 42%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .sheen:hover::before,
+  .sheen:hover::after {
+    opacity: 1;
+  }
+}

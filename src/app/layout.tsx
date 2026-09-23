@@ -5,6 +5,7 @@ import Background from "@/components/layout/Background";
 import Footer from "@/components/layout/Footer";
 import MobileActionBar from "@/components/layout/MobileActionBar";
 import Navbar from "@/components/layout/Navbar";
+import SheenTracker from "@/components/layout/SheenTracker";
 import { LocalBusinessJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/content/site";
 
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <Footer />
         <MobileActionBar />
+        <SheenTracker />
 
         <LocalBusinessJsonLd />
         <WebSiteJsonLd />

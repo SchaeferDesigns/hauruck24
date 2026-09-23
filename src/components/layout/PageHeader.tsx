@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
-import Reveal from "@/components/ui/Reveal";
+import type { CSSProperties, ReactNode } from "react";
 
+const delay = (seconds: number) => ({ "--enter-delay": `${seconds}s` }) as CSSProperties;
+
+/**
+ * Kopf fuer Unterseiten. Die Einstiegsanimation laeuft per CSS ab dem ersten
+ * Paint, damit die Ueberschrift nicht auf JavaScript warten muss.
+ */
 export default function PageHeader({
   eyebrow,
   title,
@@ -24,7 +29,7 @@ export default function PageHeader({
       />
 
       <div className="container-page relative">
-        <nav aria-label="Brotkrumen">
+        <nav aria-label="Brotkrumen" className="enter">
           <ol className="flex flex-wrap items-center gap-1 text-xs text-mist-400">
             {breadcrumbs.map((crumb, index) => {
               const isLast = index === breadcrumbs.length - 1;
@@ -38,7 +43,10 @@ export default function PageHeader({
                       {crumb.name}
                     </span>
                   ) : (
-                    <Link href={crumb.href} className="transition-colors duration-200 hover:text-mist-100">
+                    <Link
+                      href={crumb.href}
+                      className="transition-colors duration-200 hover:text-mist-100"
+                    >
                       {crumb.name}
                     </Link>
                   )}
@@ -50,30 +58,35 @@ export default function PageHeader({
 
         <div className="mt-7 max-w-3xl">
           {eyebrow ? (
-            <Reveal>
-              <span className="glass-soft inline-flex items-center gap-2 rounded-pill px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-brand-300 uppercase">
-                <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-400" />
-                {eyebrow}
-              </span>
-            </Reveal>
+            <span
+              style={delay(0.04)}
+              className="enter glass-soft inline-flex items-center gap-2 rounded-pill px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-brand-300 uppercase"
+            >
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-400" />
+              {eyebrow}
+            </span>
           ) : null}
 
-          <Reveal delay={0.05}>
-            <h1 className="mt-5 font-display text-4xl leading-[1.06] sm:text-5xl lg:text-[3.4rem]">
-              {title}
-            </h1>
-          </Reveal>
+          <h1
+            style={delay(0.1)}
+            className="enter mt-5 font-display text-4xl leading-[1.06] sm:text-5xl lg:text-[3.4rem]"
+          >
+            {title}
+          </h1>
 
           {lead ? (
-            <Reveal delay={0.1}>
-              <p className="mt-5 text-base leading-relaxed text-mist-300 sm:text-lg">{lead}</p>
-            </Reveal>
+            <p
+              style={delay(0.16)}
+              className="enter mt-5 text-base leading-relaxed text-mist-300 sm:text-lg"
+            >
+              {lead}
+            </p>
           ) : null}
 
           {children ? (
-            <Reveal delay={0.16}>
-              <div className="mt-8">{children}</div>
-            </Reveal>
+            <div style={delay(0.22)} className="enter mt-8">
+              {children}
+            </div>
           ) : null}
         </div>
       </div>

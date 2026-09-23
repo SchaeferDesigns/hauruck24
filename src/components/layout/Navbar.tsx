@@ -21,7 +21,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { nav, site } from "@/content/site";
 import { services } from "@/content/services";
 import { useHasHover, useScrollLock } from "@/lib/hooks";
-import { cn, telHref } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import Logo from "@/components/ui/Logo";
 import ServiceIcon from "@/components/ui/ServiceIcon";
 import { PhoneAction } from "@/components/ui/ContactAction";
@@ -72,6 +72,7 @@ export default function Navbar() {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const firstItemRef = useRef<HTMLAnchorElement | null>(null);
   const openTimer = useRef<number | undefined>(undefined);
+  const openedByHover = useRef(false);
   const closeTimer = useRef<number | undefined>(undefined);
   const menuId = useId();
 
@@ -106,7 +107,10 @@ export default function Navbar() {
   const openSoon = (label: string) => {
     window.clearTimeout(closeTimer.current);
     window.clearTimeout(openTimer.current);
-    openTimer.current = window.setTimeout(() => setOpenGroup(label), OPEN_DELAY);
+    openTimer.current = window.setTimeout(() => {
+      openedByHover.current = true;
+      setOpenGroup(label);
+    }, OPEN_DELAY);
   };
 
   const closeSoon = () => {
@@ -244,7 +248,16 @@ export default function Navbar() {
                         type="button"
                         aria-expanded={open}
                         aria-controls={`${menuId}-group`}
-                        onClick={() => setOpenGroup(open ? null : item.label)}
+                        onClick={() => {
+                          window.clearTimeout(closeTimer.current);
+                          /* Per Hover geoeffnet: der Klick haelt die Liste offen */
+                          if (open && openedByHover.current) {
+                            openedByHover.current = false;
+                            return;
+                          }
+                          openedByHover.current = false;
+                          setOpenGroup(open ? null : item.label);
+                        }}
                         onKeyDown={(event) => {
                           if (event.key === "ArrowDown") {
                             event.preventDefault();
@@ -284,6 +297,7 @@ export default function Navbar() {
                           /* Aeusserer Rahmen mit Innenabstand oben: unsichtbare Bruecke
                              zwischen Schaltflaeche und Liste, der Hover reisst nicht ab. */
                           <div
+                            key="panel"
                             id={`${menuId}-group`}
                             className="absolute top-full left-1/2 w-[36rem] -translate-x-1/2 pt-3.5"
                           >
@@ -600,10 +614,10 @@ export default function Navbar() {
                 <Link href="/angebot" className="btn btn-primary w-full">
                   Angebot anfragen
                 </Link>
-                <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost w-full">
+                <PhoneAction className="btn btn-ghost w-full">
                   <Phone aria-hidden="true" className="size-4" />
                   {site.contact.phoneDisplay}
-                </a>
+                </PhoneAction>
               </div>
 
               <p className="mt-4 px-2 text-xs leading-relaxed text-mist-400">

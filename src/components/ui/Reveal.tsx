@@ -1,28 +1,23 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 type Direction = "up" | "down" | "left" | "right" | "none";
 
-const offset: Record<Direction, { x: number; y: number }> = {
-  up: { x: 0, y: 28 },
-  down: { x: 0, y: -28 },
-  left: { x: 28, y: 0 },
-  right: { x: -28, y: 0 },
-  none: { x: 0, y: 0 },
-};
-
 /**
- * Einblenden beim Scrollen. Respektiert prefers-reduced-motion:
- * dann erscheint der Inhalt sofort und ohne Bewegung.
+ * Einblenden beim Scrollen.
+ *
+ * Animiert wird bewusst das direkte Kind, nicht dieser Wrapper.
+ * Traegt das Kind den Glaseffekt, blendet es sich selbst ein und behaelt
+ * dabei seinen Blur. Ein ausblendender Vorfahre wuerde den Blur brechen.
+ * Die Regeln stehen in globals.css unter "Einblenden".
  */
 export default function Reveal({
   children,
   delay = 0,
   direction = "up",
   className,
-  as = "div",
+  as: Tag = "div",
 }: {
   children: ReactNode;
   delay?: number;
@@ -30,23 +25,41 @@ export default function Reveal({
   className?: string;
   as?: "div" | "li" | "section" | "span";
 }) {
-  const reduce = useReducedMotion();
-  const Comp = motion[as];
-  const { x, y } = offset[direction];
+  const ref = useRef<HTMLElement | null>(null);
+  const [shown, setShown] = useState(false);
 
-  if (reduce) {
-    return <div className={className}>{children}</div>;
-  }
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setShown(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Comp
+    <Tag
+      ref={ref as never}
+      data-reveal={direction}
+      data-shown={shown ? "" : undefined}
+      style={{ "--reveal-delay": `${delay}s` } as CSSProperties}
       className={className}
-      initial={{ opacity: 0, x, y }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, margin: "-80px 0px -60px 0px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </Comp>
+    </Tag>
   );
 }

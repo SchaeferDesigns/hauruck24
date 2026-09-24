@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone } from "lucide-react";
 import { site } from "@/content/site";
-import { telHref } from "@/lib/utils";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
 import WhyUs from "@/components/sections/WhyUs";
 import CtaBanner from "@/components/sections/CtaBanner";
 import Reveal from "@/components/ui/Reveal";
 import { SceneBoxes } from "@/components/sections/HeroScene";
+import { PhoneAction } from "@/components/ui/ContactAction";
 
 export const metadata: Metadata = {
   title: "Über uns",
@@ -64,10 +64,10 @@ export default function AboutPage() {
                   Angebot anfragen
                   <ArrowRight aria-hidden="true" className="size-4" />
                 </Link>
-                <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost">
+                <PhoneAction className="btn btn-ghost">
                   <Phone aria-hidden="true" className="size-4" />
                   {site.contact.phoneDisplay}
-                </a>
+                </PhoneAction>
               </div>
             </Reveal>
 

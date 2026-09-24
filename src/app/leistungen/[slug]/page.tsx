@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { ArrowRight, Check, Phone } from "lucide-react";
 import { serviceBySlug, services } from "@/content/services";
 import { site } from "@/content/site";
-import { telHref } from "@/lib/utils";
 import { BreadcrumbJsonLd, FaqJsonLd, ServiceJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
 import CtaBanner from "@/components/sections/CtaBanner";
 import FaqSection from "@/components/sections/FaqSection";
 import Reveal from "@/components/ui/Reveal";
 import ServiceIcon from "@/components/ui/ServiceIcon";
+import { PhoneAction } from "@/components/ui/ContactAction";
 
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -68,10 +68,10 @@ export default async function ServiceDetailPage({
             Angebot für {service.label}
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
-          <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost">
+          <PhoneAction className="btn btn-ghost">
             <Phone aria-hidden="true" className="size-4" />
             {site.contact.phoneDisplay}
-          </a>
+          </PhoneAction>
         </div>
       </PageHeader>
 

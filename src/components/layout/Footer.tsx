@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowUp, Clock, Mail, MapPin, Phone, Printer } from "lucide-react";
 import { fullAddress, legalNav, nav, site } from "@/content/site";
 import { services } from "@/content/services";
-import { telHref } from "@/lib/utils";
 import Logo from "@/components/ui/Logo";
+import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -25,25 +25,21 @@ export default function Footer() {
             </p>
 
             <div className="mt-6 flex flex-col gap-3">
-              <a
-                href={telHref(site.contact.phoneHref)}
-                className="group flex items-center gap-3 text-sm text-mist-200"
+              <PhoneAction className="group flex items-center gap-3 text-sm text-mist-200"
               >
                 <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5">
                   <Phone aria-hidden="true" className="size-4 text-brand-400" />
                 </span>
                 <span className="link-underline text-mist-100">{site.contact.phoneDisplay}</span>
-              </a>
+              </PhoneAction>
 
-              <a
-                href={`mailto:${site.contact.email}`}
-                className="group flex items-center gap-3 text-sm text-mist-200"
+              <MailAction className="group flex items-center gap-3 text-sm text-mist-200"
               >
                 <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5">
                   <Mail aria-hidden="true" className="size-4 text-brand-400" />
                 </span>
                 <span className="link-underline text-mist-100">{site.contact.email}</span>
-              </a>
+              </MailAction>
 
               <p className="flex items-center gap-3 text-sm text-mist-300">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5">

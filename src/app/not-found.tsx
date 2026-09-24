@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Compass, Phone } from "lucide-react";
 import { services } from "@/content/services";
 import { site } from "@/content/site";
-import { telHref } from "@/lib/utils";
 import ServiceIcon from "@/components/ui/ServiceIcon";
+import { PhoneAction } from "@/components/ui/ContactAction";
 
 export const metadata = {
   title: "Seite nicht gefunden",
@@ -33,10 +33,10 @@ export default function NotFound() {
               Zur Startseite
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
-            <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost">
+            <PhoneAction className="btn btn-ghost">
               <Phone aria-hidden="true" className="size-4" />
               {site.contact.phoneDisplay}
-            </a>
+            </PhoneAction>
           </div>
 
           <ul className="mt-10 grid gap-3 border-t border-white/10 pt-8 sm:grid-cols-2">

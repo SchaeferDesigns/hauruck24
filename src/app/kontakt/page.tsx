@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Mail, MapPin, Navigation, Phone, Printer } from "lucide-react";
 import { fullAddress, routeLink, site } from "@/content/site";
-import { telHref } from "@/lib/utils";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
 import ConsentMap from "@/components/ui/ConsentMap";
 import Reveal from "@/components/ui/Reveal";
+import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
 
 export const metadata: Metadata = {
   title: "Kontakt",
@@ -33,9 +33,7 @@ export default function ContactPage() {
         <div className="container-page">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <Reveal>
-              <a
-                href={telHref(site.contact.phoneHref)}
-                className="glass card-hover flex h-full flex-col rounded-card p-6"
+              <PhoneAction className="glass card-hover flex h-full flex-col rounded-card p-6"
               >
                 <span className="grid size-11 place-items-center rounded-xl border border-brand-400/25 bg-brand-500/12 text-brand-300">
                   <Phone aria-hidden="true" className="size-5" />
@@ -47,13 +45,11 @@ export default function ContactPage() {
                 <p className="mt-2 text-sm text-mist-400">
                   Der schnellste Weg für Termine und kurze Rückfragen.
                 </p>
-              </a>
+              </PhoneAction>
             </Reveal>
 
             <Reveal delay={0.06}>
-              <a
-                href={`mailto:${site.contact.email}`}
-                className="glass card-hover flex h-full flex-col rounded-card p-6"
+              <MailAction className="glass card-hover flex h-full flex-col rounded-card p-6"
               >
                 <span className="grid size-11 place-items-center rounded-xl border border-brand-400/25 bg-brand-500/12 text-brand-300">
                   <Mail aria-hidden="true" className="size-5" />
@@ -65,7 +61,7 @@ export default function ContactPage() {
                 <p className="mt-2 text-sm text-mist-400">
                   Gut für Fotos, Grundrisse und ausführliche Beschreibungen.
                 </p>
-              </a>
+              </MailAction>
             </Reveal>
 
             <Reveal delay={0.12}>

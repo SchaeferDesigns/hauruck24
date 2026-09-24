@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Clock, Mail, Phone } from "lucide-react";
 import { site } from "@/content/site";
-import { telHref } from "@/lib/utils";
 import Reveal from "@/components/ui/Reveal";
+import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
 
 export default function CtaBanner({
   title = "Sagen Sie uns, was weg soll",
@@ -39,10 +39,10 @@ export default function CtaBanner({
                     {primaryLabel}
                     <ArrowRight aria-hidden="true" className="size-4" />
                   </Link>
-                  <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost">
+                  <PhoneAction className="btn btn-ghost">
                     <Phone aria-hidden="true" className="size-4" />
                     {site.contact.phoneDisplay}
-                  </a>
+                  </PhoneAction>
                 </div>
               </div>
 
@@ -64,9 +64,9 @@ export default function CtaBanner({
                   <div>
                     <dt className="text-xs tracking-wide text-mist-400 uppercase">E-Mail</dt>
                     <dd className="mt-1 text-sm">
-                      <a href={`mailto:${site.contact.email}`} className="link-underline">
+                      <MailAction className="link-underline">
                         {site.contact.email}
-                      </a>
+                      </MailAction>
                     </dd>
                   </div>
                 </div>

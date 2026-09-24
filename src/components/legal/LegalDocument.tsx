@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { FileText, Mail, Phone } from "lucide-react";
 import { site } from "@/content/site";
-import { telHref } from "@/lib/utils";
+import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
 
 export type LegalSlug = "impressum" | "datenschutz" | "agb" | "widerruf";
 
@@ -37,14 +37,14 @@ export default function LegalDocument({ slug }: { slug: LegalSlug }) {
         </p>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <a href={telHref(site.contact.phoneHref)} className="btn btn-primary">
+          <PhoneAction className="btn btn-primary">
             <Phone aria-hidden="true" className="size-4" />
             {site.contact.phoneDisplay}
-          </a>
-          <a href={`mailto:${site.contact.email}`} className="btn btn-ghost">
+          </PhoneAction>
+          <MailAction className="btn btn-ghost">
             <Mail aria-hidden="true" className="size-4" />
             {site.contact.email}
-          </a>
+          </MailAction>
         </div>
       </div>
     );

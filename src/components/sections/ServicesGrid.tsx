@@ -31,7 +31,7 @@ export default function ServicesGrid({
             <Reveal as="li" key={service.slug} delay={index * 0.06} className="h-full">
               <Link
                 href={`/leistungen/${service.slug}`}
-                className="glass card-hover group flex h-full flex-col rounded-card p-6"
+                className="glass card-hover sheen group flex h-full flex-col rounded-card p-6"
               >
                 <span className="grid size-12 place-items-center rounded-2xl border border-brand-400/25 bg-brand-500/12 text-brand-300">
                   <ServiceIcon name={service.icon} />

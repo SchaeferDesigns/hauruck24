@@ -146,7 +146,7 @@ export default async function ServiceDetailPage({
               <Reveal as="li" key={entry.slug} delay={index * 0.05} className="h-full">
                 <Link
                   href={`/leistungen/${entry.slug}`}
-                  className="glass card-hover group flex h-full flex-col rounded-card p-5"
+                  className="glass card-hover sheen group flex h-full flex-col rounded-card p-5"
                 >
                   <span className="grid size-10 place-items-center rounded-xl border border-white/12 bg-white/5 text-brand-300">
                     <ServiceIcon name={entry.icon} className="size-5" />

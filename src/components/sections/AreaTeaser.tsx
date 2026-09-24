@@ -37,7 +37,7 @@ export default function AreaTeaser() {
                     {group.places.slice(0, 8).map((place) => (
                       <li
                         key={place}
-                        className="glass-soft inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs text-mist-200"
+                        className="surface inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs text-mist-200"
                       >
                         <MapPin aria-hidden="true" className="size-3 text-brand-400" />
                         {place}

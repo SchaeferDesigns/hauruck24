@@ -49,7 +49,7 @@ export default function WhyUs() {
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {reasons.map((reason, index) => (
             <Reveal as="li" key={reason.title} delay={index * 0.05} className="h-full">
-              <div className="glass card-hover h-full rounded-card p-6">
+              <div className="glass card-hover sheen h-full rounded-card p-6">
                 <span className="grid size-11 place-items-center rounded-xl border border-white/12 bg-white/5 text-brand-300">
                   <reason.icon aria-hidden="true" className="size-5" strokeWidth={1.7} />
                 </span>

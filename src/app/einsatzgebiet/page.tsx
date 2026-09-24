@@ -45,7 +45,7 @@ export default function AreaPage() {
                     {group.places.map((place) => (
                       <li
                         key={place}
-                        className="glass-soft inline-flex items-center gap-2 rounded-pill px-3.5 py-2 text-sm text-mist-200"
+                        className="surface inline-flex items-center gap-2 rounded-pill px-3.5 py-2 text-sm text-mist-200"
                       >
                         <MapPin aria-hidden="true" className="size-3.5 text-brand-400" />
                         {place}

@@ -33,8 +33,7 @@ export default function ContactPage() {
         <div className="container-page">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <Reveal>
-              <PhoneAction className="glass card-hover flex h-full flex-col rounded-card p-6"
-              >
+              <PhoneAction className="glass card-hover sheen flex h-full flex-col rounded-card p-6">
                 <span className="grid size-11 place-items-center rounded-xl border border-brand-400/25 bg-brand-500/12 text-brand-300">
                   <Phone aria-hidden="true" className="size-5" />
                 </span>
@@ -49,8 +48,7 @@ export default function ContactPage() {
             </Reveal>
 
             <Reveal delay={0.06}>
-              <MailAction className="glass card-hover flex h-full flex-col rounded-card p-6"
-              >
+              <MailAction className="glass card-hover sheen flex h-full flex-col rounded-card p-6">
                 <span className="grid size-11 place-items-center rounded-xl border border-brand-400/25 bg-brand-500/12 text-brand-300">
                   <Mail aria-hidden="true" className="size-5" />
                 </span>

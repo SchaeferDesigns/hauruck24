@@ -51,7 +51,7 @@ export default function PriceFactors() {
           <ul className="grid gap-4 sm:grid-cols-2">
             {factors.map((factor, index) => (
               <Reveal as="li" key={factor.title} delay={index * 0.05} className="h-full">
-                <div className="glass card-hover flex h-full gap-4 rounded-card p-5">
+                <div className="glass card-hover sheen flex h-full gap-4 rounded-card p-5">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/5 text-brand-300">
                     <factor.icon aria-hidden="true" className="size-5" strokeWidth={1.7} />
                   </span>

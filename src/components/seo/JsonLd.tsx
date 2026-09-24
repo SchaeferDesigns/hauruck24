@@ -1,6 +1,7 @@
 import { services } from "@/content/services";
 import { allPlaces } from "@/content/areas";
 import { site } from "@/content/site";
+import { SITE_URL, pageUrl } from "@/lib/deploy";
 
 /**
  * Strukturierte Daten fuer die lokale Suche.
@@ -11,15 +12,15 @@ export function LocalBusinessJsonLd() {
   const data = {
     "@context": "https://schema.org",
     "@type": "MovingCompany",
-    "@id": `${site.url}/#organisation`,
+    "@id": `${SITE_URL}/#organisation`,
     name: site.name,
     alternateName: site.shortName,
     description: site.description,
-    url: site.url,
+    url: `${SITE_URL}/`,
     telephone: site.contact.phoneHref,
     faxNumber: site.contact.faxDisplay,
     email: site.contact.email,
-    image: `${site.url}/opengraph-image`,
+    image: `${SITE_URL}/og.png`,
     priceRange: "auf Anfrage",
     currenciesAccepted: "EUR",
     address: {
@@ -51,7 +52,7 @@ export function LocalBusinessJsonLd() {
           "@type": "Service",
           name: service.label,
           description: service.teaser,
-          url: `${site.url}/leistungen/${service.slug}`,
+          url: pageUrl(`/leistungen/${service.slug}/`),
         },
       })),
     },
@@ -69,11 +70,11 @@ export function WebSiteJsonLd() {
   const data = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": `${site.url}/#website`,
-    url: site.url,
+    "@id": `${SITE_URL}/#website`,
+    url: `${SITE_URL}/`,
     name: site.name,
     inLanguage: "de-DE",
-    publisher: { "@id": `${site.url}/#organisation` },
+    publisher: { "@id": `${SITE_URL}/#organisation` },
   };
 
   return (
@@ -92,7 +93,7 @@ export function BreadcrumbJsonLd({ items }: { items: { name: string; href: strin
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `${site.url}${item.href}`,
+      item: pageUrl(item.href === "/" ? "/" : `${item.href.replace(/\/+$/, "")}/`),
     })),
   };
 
@@ -138,8 +139,8 @@ export function ServiceJsonLd({
     name,
     description,
     serviceType: name,
-    url: `${site.url}/leistungen/${slug}`,
-    provider: { "@id": `${site.url}/#organisation` },
+    url: pageUrl(`/leistungen/${slug}/`),
+    provider: { "@id": `${SITE_URL}/#organisation` },
     areaServed: allPlaces.slice(0, 20).map((place) => ({ "@type": "City", name: place })),
   };
 

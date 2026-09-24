@@ -35,10 +35,15 @@ export async function generateMetadata({
     title: service.seoTitle,
     description: service.seoDescription,
     alternates: pageAlternates(`/leistungen/${service.slug}/`),
+    /* openGraph ersetzt den Wert aus dem Layout komplett, daher alles angeben */
     openGraph: {
+      type: "website",
+      locale: "de_DE",
+      siteName: site.name,
       title: service.seoTitle,
       description: service.seoDescription,
       url: pageUrl(`/leistungen/${service.slug}/`),
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: service.title }],
     },
   };
 }

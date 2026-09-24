@@ -8,6 +8,7 @@ import { BreadcrumbJsonLd, FaqJsonLd, ServiceJsonLd } from "@/components/seo/Jso
 import PageHeader from "@/components/layout/PageHeader";
 import CtaBanner from "@/components/sections/CtaBanner";
 import FaqSection from "@/components/sections/FaqSection";
+import TruckLoader from "@/components/sections/TruckLoader";
 import Reveal from "@/components/ui/Reveal";
 import ServiceIcon from "@/components/ui/ServiceIcon";
 import { PhoneAction } from "@/components/ui/ContactAction";
@@ -129,6 +130,8 @@ export default async function ServiceDetailPage({
           </div>
         </div>
       </section>
+
+      {service.slug === "umzug" ? <TruckLoader service="umzug" /> : null}
 
       <FaqSection
         items={service.faq}

@@ -9,6 +9,7 @@ import Hero from "@/components/sections/Hero";
 import PriceFactors from "@/components/sections/PriceFactors";
 import ProcessSteps from "@/components/sections/ProcessSteps";
 import ServicesGrid from "@/components/sections/ServicesGrid";
+import TruckLoader from "@/components/sections/TruckLoader";
 import WhyUs from "@/components/sections/WhyUs";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function HomePage() {
     <>
       <Hero />
       <ServicesGrid />
+      <TruckLoader />
       <ProcessSteps />
       <WhyUs />
       <PriceFactors />

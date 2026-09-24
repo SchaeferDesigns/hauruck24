@@ -1,0 +1,4 @@
+[
+  { "pfad": "index6.html", "ziel": "/" },
+  { "pfad": "kontakt.php", "ziel": "/kontakt/" }
+]

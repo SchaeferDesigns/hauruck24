@@ -105,9 +105,11 @@ export default function Popover({
           : rect.left;
     left = Math.min(Math.max(margin, left), viewportWidth - width - margin);
 
+    /* Oben liegt die feste Navigation, dort darf das Panel nicht hin */
+    const topSafe = 96;
     const spaceBelow = viewportHeight - rect.bottom - offset - margin;
-    const spaceAbove = rect.top - offset - margin;
-    const above = height > spaceBelow && spaceAbove > spaceBelow;
+    const spaceAbove = rect.top - offset - topSafe;
+    const above = height > spaceBelow && spaceAbove >= height;
     const maxHeight = Math.max(180, above ? spaceAbove : spaceBelow);
     const top = above ? rect.top - offset - Math.min(height, maxHeight) : rect.bottom + offset;
 
@@ -117,6 +119,21 @@ export default function Popover({
   useLayoutEffect(() => {
     if (!open || asSheet) return;
     updatePosition();
+
+    /* Passt das Panel weder unten noch oben hin, die Seite so weit schieben,
+       dass es unter dem Ausloeser vollstaendig sichtbar ist */
+    const anchor = anchorRef.current;
+    const panel = panelRef.current;
+    if (anchor && panel) {
+      const rect = anchor.getBoundingClientRect();
+      const needed = panel.scrollHeight + offset + 16;
+      const below = window.innerHeight - rect.bottom;
+      const above = rect.top - 96;
+      if (needed > below && needed > above) {
+        const shift = Math.min(needed - below, rect.top - 110);
+        if (shift > 0) window.scrollBy({ top: shift, behavior: "smooth" });
+      }
+    }
 
     const onChange = () => updatePosition();
     window.addEventListener("resize", onChange);

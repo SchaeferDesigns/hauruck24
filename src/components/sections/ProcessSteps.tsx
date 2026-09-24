@@ -161,7 +161,7 @@ export default function ProcessSteps({
                   style={{ top: markerTop }}
                   className="absolute left-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-brand-200/60 bg-gradient-to-br from-brand-300 to-brand-500 text-night-950 shadow-[0_8px_24px_-6px_rgb(255_149_34/0.8)]"
                 >
-                  <Truck className="size-4 rotate-90" strokeWidth={2.2} />
+                  <Truck className="size-4" strokeWidth={2.2} />
                 </motion.span>
               ) : null}
             </div>

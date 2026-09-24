@@ -24,7 +24,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <ServicesGrid />
+      <ServicesGrid afterHero />
       <TruckLoader />
       <ProcessSteps />
       <WhyUs />

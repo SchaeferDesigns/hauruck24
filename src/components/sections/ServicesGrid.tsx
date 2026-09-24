@@ -8,14 +8,17 @@ import SectionHeading from "@/components/ui/SectionHeading";
 export default function ServicesGrid({
   withHeading = true,
   limit,
+  afterHero = false,
 }: {
   withHeading?: boolean;
   limit?: number;
+  /** Direkt unter dem Hero: weniger Abstand nach oben */
+  afterHero?: boolean;
 }) {
   const list = limit ? services.slice(0, limit) : services;
 
   return (
-    <section id="leistungen" className="section-pad">
+    <section id="leistungen" className={afterHero ? "section-pad pt-6 sm:pt-10" : "section-pad"}>
       <div className="container-page">
         {withHeading ? (
           <SectionHeading

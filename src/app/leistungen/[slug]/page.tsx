@@ -12,6 +12,7 @@ import TruckLoader from "@/components/sections/TruckLoader";
 import Reveal from "@/components/ui/Reveal";
 import ServiceIcon from "@/components/ui/ServiceIcon";
 import { PhoneAction } from "@/components/ui/ContactAction";
+import { pageAlternates, pageUrl } from "@/lib/deploy";
 
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -30,11 +31,11 @@ export async function generateMetadata({
   return {
     title: service.seoTitle,
     description: service.seoDescription,
-    alternates: { canonical: `/leistungen/${service.slug}` },
+    alternates: pageAlternates(`/leistungen/${service.slug}/`),
     openGraph: {
       title: service.seoTitle,
       description: service.seoDescription,
-      url: `${site.url}/leistungen/${service.slug}`,
+      url: pageUrl(`/leistungen/${service.slug}/`),
     },
   };
 }
@@ -65,7 +66,7 @@ export default async function ServiceDetailPage({
         breadcrumbs={breadcrumbs}
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href={`/angebot?leistung=${service.slug}`} className="btn btn-primary">
+          <Link href={`/angebot/?leistung=${service.slug}`} className="btn btn-primary">
             Angebot für {service.label}
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
@@ -119,7 +120,7 @@ export default async function ServiceDetailPage({
                 </ul>
 
                 <Link
-                  href={`/angebot?leistung=${service.slug}`}
+                  href={`/angebot/?leistung=${service.slug}`}
                   className="btn btn-primary mt-7 w-full"
                 >
                   Situation schildern
@@ -175,7 +176,7 @@ export default async function ServiceDetailPage({
       <CtaBanner
         title={`${service.label} anfragen`}
         text="Ein kurzes Gespräch reicht für die erste Einschätzung. Danach wissen Sie, ob und wann es passt."
-        primaryHref={`/angebot?leistung=${service.slug}`}
+        primaryHref={`/angebot/?leistung=${service.slug}`}
       />
 
       <BreadcrumbJsonLd items={breadcrumbs} />

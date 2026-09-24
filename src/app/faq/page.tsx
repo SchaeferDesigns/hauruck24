@@ -7,12 +7,13 @@ import CtaBanner from "@/components/sections/CtaBanner";
 import Accordion from "@/components/ui/Accordion";
 import Reveal from "@/components/ui/Reveal";
 import ServiceIcon from "@/components/ui/ServiceIcon";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Häufige Fragen",
   description:
     "Antworten zu Kosten, Terminen, Besichtigung, Entsorgung und Einsatzgebiet rund um Umzug und Entrümpelung in Schwäbisch Gmünd.",
-  alternates: { canonical: "/faq" },
+  alternates: pageAlternates("/faq/"),
 };
 
 const breadcrumbs = [

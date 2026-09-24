@@ -6,12 +6,13 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
 import QuoteForm from "@/components/forms/QuoteForm";
 import Reveal from "@/components/ui/Reveal";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Angebot anfragen",
   description:
     "Angebot für Umzug, Entrümpelung, Haushaltsauflösung, Kleintransport oder Lagerraum in Schwäbisch Gmünd anfragen. Kostenlos und unverbindlich.",
-  alternates: { canonical: "/angebot" },
+  alternates: pageAlternates("/angebot/"),
 };
 
 const breadcrumbs = [

@@ -7,11 +7,12 @@ import PageHeader from "@/components/layout/PageHeader";
 import ConsentMap from "@/components/ui/ConsentMap";
 import Reveal from "@/components/ui/Reveal";
 import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Kontakt",
   description: `${site.name} in ${site.address.city} ${site.address.district}: Telefon ${site.contact.phoneDisplay}, E-Mail ${site.contact.email}. Erreichbar von Montag bis Samstag.`,
-  alternates: { canonical: "/kontakt" },
+  alternates: pageAlternates("/kontakt/"),
 };
 
 const breadcrumbs = [

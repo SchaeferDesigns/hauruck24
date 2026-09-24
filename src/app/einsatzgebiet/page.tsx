@@ -7,12 +7,13 @@ import PageHeader from "@/components/layout/PageHeader";
 import CtaBanner from "@/components/sections/CtaBanner";
 import ConsentMap from "@/components/ui/ConsentMap";
 import Reveal from "@/components/ui/Reveal";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Einsatzgebiet",
   description:
     "Umzug, Entrümpelung und Transport in Schwäbisch Gmünd, im Ostalbkreis und im Rems-Murr-Kreis. Alle Orte im Überblick.",
-  alternates: { canonical: "/einsatzgebiet" },
+  alternates: pageAlternates("/einsatzgebiet/"),
 };
 
 const breadcrumbs = [

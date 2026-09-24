@@ -9,11 +9,12 @@ import CtaBanner from "@/components/sections/CtaBanner";
 import Reveal from "@/components/ui/Reveal";
 import { SceneBoxes } from "@/components/sections/HeroScene";
 import { PhoneAction } from "@/components/ui/ContactAction";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Über uns",
   description: `${site.name} aus ${site.address.city} ${site.address.district}: Umzüge, Entrümpelungen und Transporte aus der Region, mit eigenem Fahrzeug und festen Ansprechpartnern.`,
-  alternates: { canonical: "/ueber-uns" },
+  alternates: pageAlternates("/ueber-uns/"),
 };
 
 const breadcrumbs = [

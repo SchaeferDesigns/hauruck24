@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
 import LegalDocument from "@/components/legal/LegalDocument";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Allgemeine Geschäftsbedingungen",
   description: "Die Bedingungen für unsere Leistungen.",
-  alternates: { canonical: "/agb" },
-  robots: { index: true, follow: true },
+  alternates: pageAlternates("/agb/"),
 };
 
 const breadcrumbs = [

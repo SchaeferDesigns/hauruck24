@@ -107,7 +107,7 @@ export default function TruckLoader({
   const ratio = units / TRUCK_CAPACITY;
   const pieces = loaded.reduce((sum, item) => sum + (counts[item.id] ?? 0), 0);
   const summary = loaded.map((item) => describe(item, counts[item.id] ?? 0)).join(", ");
-  const href = `/angebot?leistung=${service}${summary ? `&liste=${encodeURIComponent(summary)}` : ""}`;
+  const href = `/angebot/?leistung=${service}${summary ? `&liste=${encodeURIComponent(summary)}` : ""}`;
 
   const bump = () => {
     if (reduce) return;

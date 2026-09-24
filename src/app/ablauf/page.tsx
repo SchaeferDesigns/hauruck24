@@ -5,12 +5,13 @@ import CtaBanner from "@/components/sections/CtaBanner";
 import MoveChecklist from "@/components/sections/MoveChecklist";
 import PriceFactors from "@/components/sections/PriceFactors";
 import ProcessSteps from "@/components/sections/ProcessSteps";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Ablauf",
   description:
     "So läuft ein Auftrag bei Hauruck24 ab: Anfrage, Besichtigung, Angebot, Termin und Durchführung. Mit Checkliste zum Abhaken für die Vorbereitung.",
-  alternates: { canonical: "/ablauf" },
+  alternates: pageAlternates("/ablauf/"),
 };
 
 const breadcrumbs = [

@@ -4,12 +4,13 @@ import PageHeader from "@/components/layout/PageHeader";
 import ServicesGrid from "@/components/sections/ServicesGrid";
 import ProcessSteps from "@/components/sections/ProcessSteps";
 import CtaBanner from "@/components/sections/CtaBanner";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: "Leistungen",
   description:
     "Umzug, Entrümpelung, Haushaltsauflösung, Kleintransporte und Lagerraum in Schwäbisch Gmünd und Umgebung. Alle Leistungen im Überblick.",
-  alternates: { canonical: "/leistungen" },
+  alternates: pageAlternates("/leistungen/"),
 };
 
 const breadcrumbs = [

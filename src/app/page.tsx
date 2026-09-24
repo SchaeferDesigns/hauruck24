@@ -11,11 +11,12 @@ import ProcessSteps from "@/components/sections/ProcessSteps";
 import ServicesGrid from "@/components/sections/ServicesGrid";
 import TruckLoader from "@/components/sections/TruckLoader";
 import WhyUs from "@/components/sections/WhyUs";
+import { pageAlternates } from "@/lib/deploy";
 
 export const metadata: Metadata = {
   title: `${site.name} | ${site.claim}`,
   description: site.description,
-  alternates: { canonical: "/" },
+  alternates: pageAlternates("/"),
 };
 
 const teaserFaq = faq.slice(0, 5);

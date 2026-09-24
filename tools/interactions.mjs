@@ -98,7 +98,7 @@ const auditAncestors = (page, selector) =>
   await heading.scrollIntoViewIfNeeded();
   await page.waitForTimeout(900);
   for (const name of ["Sofa hinzufügen", "Bett hinzufügen", "Schrank hinzufügen", "5 Kartons hinzufügen", "5 Kartons hinzufügen", "Waschmaschine hinzufügen", "Regal hinzufügen", "Regal hinzufügen"]) {
-    await page.getByRole("button", { name }).click();
+    await page.getByRole("button", { name, exact: true }).click();
     await page.waitForTimeout(220);
   }
   await page.waitForTimeout(700);

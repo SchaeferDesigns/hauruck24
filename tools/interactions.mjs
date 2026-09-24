@@ -172,7 +172,7 @@ const auditAncestors = (page, selector) =>
   await page.getByRole("button", { name: "Anfrage senden" }).click();
   await page.waitForTimeout(600);
   await shot(page, "v2-form-errors");
-  console.log("Fehlermeldung:", await page.getByRole("alert").innerText());
+  console.log("Fehlermeldung:", await page.locator("form [role=alert]").innerText());
   console.log("Nachricht vorbefuellt:", (await page.locator("#message").inputValue()).slice(0, 60));
   await page.close();
 }

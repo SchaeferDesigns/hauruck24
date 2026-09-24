@@ -32,8 +32,28 @@ const FORBIDDEN_IN_PREVIEW = new Set(["sitemap.xml", "robots.txt", ".htaccess"])
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * Basispfad vereinheitlichen: "/demo/hauruck24", ohne Schraegstrich am Ende.
+ *
+ * Git Bash wandelt "/demo/hauruck24" in Argumenten und Umgebungsvariablen
+ * in "C:/Program Files/Git/demo/hauruck24" um. Solche Werte werden auf den
+ * urspruenglichen Pfad zurueckgefuehrt. Ist das nicht eindeutig moeglich,
+ * bricht der Build lieber ab, statt mit falschem Pfad zu bauen.
+ */
 export function normalizeBase(value) {
-  const trimmed = String(value ?? "").trim().replace(/^\/+|\/+$/g, "");
+  let text = String(value ?? "").trim().replace(/\\/g, "/");
+
+  if (/^[A-Za-z]:\//.test(text)) {
+    const marker = text.match(/\/(?:Git|msys64|msys32|msys2|cygwin64|cygwin)(?=\/)/i);
+    if (!marker || marker.index === undefined) {
+      throw new Error(
+        `Basispfad sieht nach einem Windows-Pfad aus: "${value}". In Git Bash MSYS_NO_PATHCONV=1 setzen.`,
+      );
+    }
+    text = text.slice(marker.index + marker[0].length);
+  }
+
+  const trimmed = text.replace(/^\/+|\/+$/g, "");
   return trimmed ? `/${trimmed}` : "";
 }
 

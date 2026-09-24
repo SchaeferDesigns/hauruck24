@@ -38,17 +38,7 @@ const hints = [
   },
 ];
 
-export default async function QuotePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ leistung?: string; liste?: string }>;
-}) {
-  const params = await searchParams;
-  const initialService = typeof params.leistung === "string" ? params.leistung : "";
-  /* Ladeliste aus "Packen Sie den Wagen", begrenzt und ohne Steuerzeichen */
-  const initialList =
-    typeof params.liste === "string" ? params.liste.replace(/[\u0000-\u001f]/g, " ").slice(0, 600) : "";
-
+export default function QuotePage() {
   return (
     <>
       <PageHeader
@@ -61,7 +51,7 @@ export default async function QuotePage({
       <section id="anfrage" className="pt-8 pb-4 sm:pt-12">
         <div className="container-page">
           <div className="grid gap-6 lg:grid-cols-[1.45fr_0.55fr] lg:items-start">
-            <QuoteForm initialService={initialService} initialList={initialList} />
+            <QuoteForm />
 
             <div className="flex flex-col gap-4">
               <Reveal delay={0.08}>

@@ -14,6 +14,9 @@ import ServiceIcon from "@/components/ui/ServiceIcon";
 import { PhoneAction } from "@/components/ui/ContactAction";
 import { pageAlternates, pageUrl } from "@/lib/deploy";
 
+/* Statischer Export: nur die bekannten Leistungen, alles andere ist 404 */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
 }

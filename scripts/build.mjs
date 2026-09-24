@@ -68,6 +68,35 @@ const walkRemove = (dir, test) => {
 /* Build-Reste gehoeren nie in den Upload-Ordner */
 walkRemove(outDir, (entry) => entry.name === "BUILD_ID" || (entry.isDirectory() && entry.name === "cache"));
 
+/*
+ * Seitendaten fuer die Navigation flach ablegen.
+ * Next.js 16.2 bildet die Dateinamen beim Export mit path.relative(). Unter
+ * Windows entstehen so Unterordner wie kontakt/__next.kontakt/__PAGE__.txt,
+ * der Browser fragt aber kontakt/__next.kontakt.__PAGE__.txt an. Unter Linux
+ * waere der Name bereits flach. Hier wird er auf allen Systemen angeglichen.
+ */
+const filesIn = (dir) =>
+  readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory() ? filesIn(path.join(dir, entry.name)) : [path.join(dir, entry.name)],
+  );
+
+const flattenSegments = (dir) => {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const abs = path.join(dir, entry.name);
+    if (!entry.name.startsWith("__next.")) {
+      flattenSegments(abs);
+      continue;
+    }
+    for (const file of filesIn(abs)) {
+      const flat = path.relative(abs, file).split(path.sep).join(".");
+      renameSync(file, path.join(dir, `${entry.name}.${flat}`));
+    }
+    rmSync(abs, { recursive: true, force: true });
+  }
+};
+flattenSegments(outDir);
+
 /* Vorschau: nicht indexierbar, keine Suchmaschinen- und Serverdateien */
 if (mode === "vorschau") {
   walkRemove(outDir, (entry) => ["sitemap.xml", "robots.txt", ".htaccess"].includes(entry.name));

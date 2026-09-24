@@ -234,15 +234,16 @@ export function checkBuild({ outDir, mode, base = "", root = projectRoot }) {
       }
     }
 
-    /* Framework-Dateien: jede Referenz auf /_next/ braucht den Basispfad davor */
-    let index = text.indexOf("/_next/");
-    while (index !== -1) {
+    /* Framework-Ressourcen: jede Referenz auf /_next/static, /_next/data oder
+       /_next/image braucht den Basispfad davor. Reine Laufzeitlogik wie
+       indexOf("/_next/") ist keine Adresse und bleibt unberuehrt. */
+    for (const match of text.matchAll(/\/_next\/(?:static|data|image)/g)) {
+      const index = match.index ?? 0;
       if (text.slice(Math.max(0, index - base.length), index) !== base) {
-        const snippet = text.slice(Math.max(0, index - 30), index + 40).replace(/\s+/g, " ");
+        const snippet = text.slice(Math.max(0, index - 30), index + 50).replace(/\s+/g, " ");
         fail(`/_next/ ohne ${base} in ${file.rel}: ...${snippet}...`);
         break;
       }
-      index = text.indexOf("/_next/", index + 7);
     }
   }
 

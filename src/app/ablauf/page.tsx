@@ -1,62 +1,21 @@
 import type { Metadata } from "next";
-import { Check } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import PageHeader from "@/components/layout/PageHeader";
-import ProcessSteps from "@/components/sections/ProcessSteps";
-import PriceFactors from "@/components/sections/PriceFactors";
 import CtaBanner from "@/components/sections/CtaBanner";
-import Reveal from "@/components/ui/Reveal";
-import SectionHeading from "@/components/ui/SectionHeading";
+import MoveChecklist from "@/components/sections/MoveChecklist";
+import PriceFactors from "@/components/sections/PriceFactors";
+import ProcessSteps from "@/components/sections/ProcessSteps";
 
 export const metadata: Metadata = {
   title: "Ablauf",
   description:
-    "So läuft ein Auftrag bei Hauruck24 ab: Anfrage, Besichtigung, Angebot, Termin und Durchführung. Dazu eine Checkliste für die Vorbereitung.",
+    "So läuft ein Auftrag bei Hauruck24 ab: Anfrage, Besichtigung, Angebot, Termin und Durchführung. Mit Checkliste zum Abhaken für die Vorbereitung.",
   alternates: { canonical: "/ablauf" },
 };
 
 const breadcrumbs = [
   { name: "Start", href: "/" },
   { name: "Ablauf", href: "/ablauf" },
-];
-
-const checklist = [
-  {
-    title: "Vier Wochen vorher",
-    items: [
-      "Termin grob festlegen und anfragen",
-      "Kündigung und Übergabetermin abstimmen",
-      "Aussortieren beginnen, das senkt den Aufwand spürbar",
-      "Sondergut notieren: Klavier, Tresor, Aquarium",
-    ],
-  },
-  {
-    title: "Zwei Wochen vorher",
-    items: [
-      "Kartons besorgen und beschriften",
-      "Halteverbot prüfen, wenn die Straße eng ist",
-      "Nachbarn und Hausverwaltung informieren",
-      "Nachsendeauftrag und Ummeldungen vorbereiten",
-    ],
-  },
-  {
-    title: "Am Tag davor",
-    items: [
-      "Wertsachen und Dokumente separat packen",
-      "Kühlschrank abtauen und leeren",
-      "Wege und Treppenhaus frei räumen",
-      "Zugang, Schlüssel und Parkfläche klären",
-    ],
-  },
-  {
-    title: "Am Termin",
-    items: [
-      "Kurze Abstimmung vor dem Start",
-      "Was bleibt und was mitgeht, klar markieren",
-      "Erreichbar sein für Rückfragen",
-      "Gemeinsame Abnahme am Ende",
-    ],
-  },
 ];
 
 export default function ProcessPage() {
@@ -69,37 +28,13 @@ export default function ProcessPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <ProcessSteps />
+      <ProcessSteps
+        detailed
+        title="Vier Schritte im Detail"
+        lead="Jeder Schritt mit dem, was Sie tun, was wir tun und worauf es ankommt. Scrollen Sie durch, die Übersicht links läuft mit."
+      />
 
-      <section className="section-pad pt-0">
-        <div className="container-page">
-          <SectionHeading
-            eyebrow="Checkliste"
-            title="Vorbereitung, die Zeit und Geld spart"
-            lead="Je besser vorbereitet, desto kürzer der Termin. Und ein kürzerer Termin bedeutet in der Regel einen niedrigeren Preis."
-            className="mb-14"
-          />
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            {checklist.map((block, index) => (
-              <Reveal key={block.title} delay={index * 0.06} className="h-full">
-                <div className="glass card-hover h-full rounded-card p-6">
-                  <h3 className="font-display text-lg text-brand-300">{block.title}</h3>
-                  <ul className="mt-4 flex flex-col gap-3">
-                    {block.items.map((item) => (
-                      <li key={item} className="flex gap-3 text-sm leading-relaxed text-mist-200">
-                        <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-signal-400" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
+      <MoveChecklist />
       <PriceFactors />
       <CtaBanner
         title="Termin ins Auge gefasst?"

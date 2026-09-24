@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { FileText, Mail, Phone } from "lucide-react";
 import { site } from "@/content/site";
+import { BASE_PATH } from "@/lib/deploy";
 import { MailAction, PhoneAction } from "@/components/ui/ContactAction";
 
 export type LegalSlug = "impressum" | "datenschutz" | "agb" | "widerruf";
@@ -14,10 +15,17 @@ export type LegalSlug = "impressum" | "datenschutz" | "agb" | "widerruf";
 function readLegalHtml(slug: LegalSlug) {
   try {
     const file = path.join(process.cwd(), "src", "content", "legal", `${slug}.html`);
-    return fs.readFileSync(file, "utf8").trim();
+    return withBasePath(fs.readFileSync(file, "utf8").trim());
   } catch {
     return "";
   }
+}
+
+/* Interne Links im eingefuegten Text bekommen in der Vorschau den Basispfad,
+   zum Beispiel href="/impressum/" zu href="/demo/hauruck24/impressum/". */
+function withBasePath(html: string) {
+  if (!BASE_PATH) return html;
+  return html.replace(/(href|src)=(["'])\/(?!\/)/g, `$1=$2${BASE_PATH}/`);
 }
 
 export default function LegalDocument({ slug }: { slug: LegalSlug }) {

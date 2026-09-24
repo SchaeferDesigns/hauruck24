@@ -13,9 +13,11 @@ import {
   Truck,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { services } from "@/content/services";
 import { site } from "@/content/site";
+import { FORM_ENDPOINT } from "@/lib/deploy";
 import { cn } from "@/lib/utils";
 import ServiceIcon from "@/components/ui/ServiceIcon";
 import { PhoneAction } from "@/components/ui/ContactAction";
@@ -81,28 +83,50 @@ const labelClass = "mb-2 block text-sm font-medium text-mist-200";
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 
-export default function QuoteForm({
-  initialService = "",
-  initialList = "",
-}: {
-  initialService?: string;
-  initialList?: string;
-}) {
+/* Steuerzeichen entfernen und Laenge begrenzen, der Wert kommt aus der Adresszeile */
+const cleanParam = (value: string | null, max: number) =>
+  (value ?? "")
+    .split("")
+    .map((char) => (char.charCodeAt(0) < 32 ? " " : char))
+    .join("")
+    .trim()
+    .slice(0, max);
+
+/**
+ * Liest ?leistung= und ?liste= aus der Adresse, zum Beispiel aus
+ * "Packen Sie den Wagen". Liegt in eigenem Suspense-Rahmen, damit das
+ * Formular selbst statisch vorgerendert bleibt.
+ */
+function PrefillFromUrl({ onPrefill }: { onPrefill: (service: string, list: string) => void }) {
+  const params = useSearchParams();
+  useEffect(() => {
+    onPrefill(cleanParam(params.get("leistung"), 40), cleanParam(params.get("liste"), 600));
+  }, [params, onPrefill]);
+  return null;
+}
+
+export default function QuoteForm() {
   const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
-  const [values, setValues] = useState<Values>({
-    ...emptyValues,
-    service: services.some((entry) => entry.slug === initialService) ? initialService : "",
-    message: initialList ? `Ladeliste: ${initialList}` : "",
-  });
+  const [values, setValues] = useState<Values>(emptyValues);
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "fallback">("idle");
+  /* "mail": ohne Formular-Dienst geht die Anfrage per E-Mail-Programm,
+     Kopieren oder Anruf raus. "failed": Dienst eingerichtet, aber nicht erreichbar. */
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "mail" | "failed">("idle");
   const [copied, setCopied] = useState(false);
   const startedAt = useRef<number>(Date.now());
   const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     startedAt.current = Date.now();
+  }, []);
+
+  const prefill = useCallback((service: string, list: string) => {
+    setValues((current) => ({
+      ...current,
+      service: services.some((entry) => entry.slug === service) ? service : current.service,
+      message: list && !current.message ? `Ladeliste: ${list}` : current.message,
+    }));
   }, []);
 
   const set = <K extends keyof Values>(key: K, value: Values[K]) => {
@@ -190,34 +214,49 @@ export default function QuoteForm({
       return;
     }
 
-    setStatus("sending");
     setErrors([]);
 
+    /* Statische Website ohne eigenen Server: ohne eingerichteten Formular-Dienst
+       geht die Anfrage ueber das E-Mail-Programm, die Zwischenablage oder das Telefon. */
+    if (!FORM_ENDPOINT) {
+      setStatus("mail");
+      scrollToForm();
+      return;
+    }
+
+    /* Koederfeld gefuellt oder in unter drei Sekunden abgeschickt: kein Mensch */
+    if (values.website || Date.now() - startedAt.current < 3000) {
+      setStatus("sent");
+      return;
+    }
+
+    setStatus("sending");
+
     try {
-      const response = await fetch("/api/anfrage", {
+      const response = await fetch(FORM_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          ...values,
-          date: values.date ? formatDateLong(values.date) : "",
-          startedAt: startedAt.current,
+          leistung: serviceLabel,
+          umfang: values.scope,
+          von: [values.fromAddress, values.fromFloor].filter(Boolean).join(", "),
+          nach: [values.toAddress, values.toFloor].filter(Boolean).join(", "),
+          termin: values.date ? formatDateLong(values.date) : "",
+          flexibel: values.flexible,
+          name: values.name,
+          email: values.email,
+          telefon: values.phone,
+          nachricht: values.message,
+          einwilligung: values.consent,
+          _subject: `Anfrage über die Website: ${serviceLabel}`,
         }),
       });
 
-      const data = (await response.json()) as { ok: boolean; configured?: boolean; error?: string };
-
-      if (data.ok) {
-        setStatus("sent");
-        scrollToForm();
-        return;
-      }
-
-      setStatus("fallback");
-      scrollToForm();
+      setStatus(response.ok ? "sent" : "failed");
     } catch {
-      setStatus("fallback");
-      scrollToForm();
+      setStatus("failed");
     }
+    scrollToForm();
   };
 
   if (status === "sent") {
@@ -244,18 +283,27 @@ export default function QuoteForm({
     );
   }
 
-  if (status === "fallback") {
+  if (status === "mail" || status === "failed") {
     return (
-      <div className="glass-strong rounded-card p-8 sm:p-10">
+      <div className="glass-strong scroll-mt-28 rounded-card p-8 sm:p-10">
         <span className="grid size-12 place-items-center rounded-full border border-brand-400/35 bg-brand-500/15">
-          <CircleAlert aria-hidden="true" className="size-6 text-brand-300" />
+          {status === "failed" ? (
+            <CircleAlert aria-hidden="true" className="size-6 text-brand-300" />
+          ) : (
+            <Send aria-hidden="true" className="size-6 text-brand-300" />
+          )}
         </span>
-        <h2 className="mt-5 font-display text-2xl">Online-Versand gerade nicht möglich</h2>
+        <h2 className="mt-5 font-display text-2xl">
+          {status === "failed" ? "Online-Versand gerade nicht möglich" : "Letzter Schritt: abschicken"}
+        </h2>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-mist-300">
-          Ihre Angaben sind nicht verloren. Kopieren Sie sie mit einem Klick und fügen Sie sie in
-          eine E-Mail an{" "}
-          <span className="font-semibold text-mist-100">{site.contact.email}</span> ein, oder
-          öffnen Sie direkt Ihr Mailprogramm. Telefonisch sind wir ebenso erreichbar.
+          {status === "failed"
+            ? "Ihre Angaben sind nicht verloren. "
+            : "Ihre Anfrage ist fertig, aber noch nicht versendet. "}
+          Öffnen Sie sie mit einem Klick in Ihrem E-Mail-Programm oder kopieren Sie die Angaben
+          und senden Sie sie an{" "}
+          <span className="font-semibold text-mist-100">{site.contact.email}</span>. Telefonisch
+          sind wir ebenso erreichbar.
         </p>
 
         <pre className="mt-6 max-h-56 overflow-auto rounded-2xl border border-white/10 bg-white/4 p-4 font-sans text-xs leading-relaxed whitespace-pre-wrap text-mist-300">
@@ -263,7 +311,11 @@ export default function QuoteForm({
         </pre>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <button type="button" onClick={copyText} className="btn btn-primary">
+          <a href={mailtoHref} className="btn btn-primary">
+            <Mail aria-hidden="true" className="size-4" />
+            Als E-Mail öffnen
+          </a>
+          <button type="button" onClick={copyText} className="btn btn-ghost">
             {copied ? (
               <>
                 <Check aria-hidden="true" className="size-4" />
@@ -276,10 +328,6 @@ export default function QuoteForm({
               </>
             )}
           </button>
-          <a href={mailtoHref} className="btn btn-ghost">
-            <Mail aria-hidden="true" className="size-4" />
-            Mailprogramm
-          </a>
           <PhoneAction className="btn btn-ghost">
             <Phone aria-hidden="true" className="size-4" />
             Anrufen
@@ -358,6 +406,10 @@ export default function QuoteForm({
           </p>
         </div>
       ) : null}
+
+      <Suspense fallback={null}>
+        <PrefillFromUrl onPrefill={prefill} />
+      </Suspense>
 
       {/* Koederfeld gegen automatisierte Eintraege */}
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
@@ -674,7 +726,11 @@ export default function QuoteForm({
             className="btn btn-primary disabled:opacity-70 sm:ml-auto"
           >
             <Send aria-hidden="true" className="size-4" />
-            {status === "sending" ? "Wird gesendet" : "Anfrage senden"}
+            {status === "sending"
+              ? "Wird gesendet"
+              : FORM_ENDPOINT
+                ? "Anfrage senden"
+                : "Anfrage abschließen"}
           </button>
         )}
       </div>

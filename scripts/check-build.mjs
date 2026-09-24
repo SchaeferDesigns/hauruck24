@@ -196,6 +196,21 @@ export function checkBuild({ outDir, mode, base = "", root = projectRoot }) {
   for (const entry of entries) {
     if (!entry.dir && entry.name === "BUILD_ID") fail(`BUILD_ID vorhanden: ${entry.rel}`);
     if (entry.dir && entry.name === "cache") fail(`cache-Ordner vorhanden: ${entry.rel}`);
+    /* Seitendaten muessen flach liegen, sonst laufen Navigationen in 404 */
+    if (entry.dir && entry.name.startsWith("__next.")) fail(`Seitendaten verschachtelt statt flach: ${entry.rel}`);
+  }
+
+  /* Jede Route braucht ihre Seitendaten unter dem Namen, den der Browser anfragt */
+  for (const route of routes) {
+    if (!route) continue;
+    const segments = route.split("/");
+    const last = segments[segments.length - 1];
+    const parent = segments.slice(0, -1);
+    const leaf =
+      route.startsWith("leistungen/") && segments.length === 2
+        ? `__next.leistungen.$d$slug.__PAGE__.txt`
+        : `__next.${[...parent, last].join(".")}.__PAGE__.txt`;
+    if (!byRel.has(`${route}/${leaf}`)) fail(`Seitendaten fehlen: ${route}/${leaf}`);
   }
   for (const route of routes) {
     if (!byRel.has(routeFile(route))) fail(`Route ohne Datei: /${route} (erwartet ${routeFile(route)})`);

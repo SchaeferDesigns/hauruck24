@@ -6,16 +6,22 @@ import {
   ArrowRight,
   Check,
   CircleAlert,
+  ClipboardCopy,
   Mail,
   Phone,
   Send,
+  Truck,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { services } from "@/content/services";
 import { site } from "@/content/site";
-import { cn, telHref } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import ServiceIcon from "@/components/ui/ServiceIcon";
+import { PhoneAction } from "@/components/ui/ContactAction";
+import Checkbox from "./Checkbox";
+import DatePicker, { formatDateLong } from "./DatePicker";
+import Select from "./Select";
 
 type Values = {
   service: string;
@@ -33,6 +39,8 @@ type Values = {
   consent: boolean;
   website: string;
 };
+
+type FieldError = "service" | "name" | "contact" | "email" | "consent";
 
 const emptyValues: Values = {
   service: "",
@@ -58,27 +66,40 @@ const steps = [
 ];
 
 const scopeOptions = [
-  "Einzelne Möbel oder Geräte",
-  "1 bis 2 Zimmer",
-  "3 bis 4 Zimmer",
-  "Ganzes Haus",
-  "Keller, Dachboden oder Garage",
-  "Weiß ich noch nicht",
+  { value: "Einzelne Möbel oder Geräte", label: "Einzelne Möbel oder Geräte" },
+  { value: "1 bis 2 Zimmer", label: "1 bis 2 Zimmer" },
+  { value: "3 bis 4 Zimmer", label: "3 bis 4 Zimmer" },
+  { value: "Ganzes Haus", label: "Ganzes Haus" },
+  { value: "Keller, Dachboden oder Garage", label: "Keller, Dachboden oder Garage" },
+  { value: "Weiß ich noch nicht", label: "Weiß ich noch nicht", description: "Wir klären es gemeinsam" },
 ];
 
 const fieldClass =
-  "w-full rounded-2xl border border-white/12 bg-white/5 px-4 py-3.5 text-[0.975rem] text-mist-50 placeholder:text-mist-500 transition-colors duration-200 focus:border-brand-400/60 focus:bg-white/8";
+  "w-full rounded-2xl border bg-white/5 px-4 py-3.5 text-[0.975rem] text-mist-50 placeholder:text-mist-500 outline-none transition-colors duration-200 focus:border-brand-400/60 focus:bg-white/8";
 
 const labelClass = "mb-2 block text-sm font-medium text-mist-200";
 
-export default function QuoteForm({ initialService = "" }: { initialService?: string }) {
+const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+
+export default function QuoteForm({
+  initialService = "",
+  initialList = "",
+}: {
+  initialService?: string;
+  initialList?: string;
+}) {
   const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
-  const [values, setValues] = useState<Values>({ ...emptyValues, service: initialService });
-  const [error, setError] = useState<string | null>(null);
+  const [values, setValues] = useState<Values>({
+    ...emptyValues,
+    service: services.some((entry) => entry.slug === initialService) ? initialService : "",
+    message: initialList ? `Ladeliste: ${initialList}` : "",
+  });
+  const [errors, setErrors] = useState<FieldError[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "fallback">("idle");
+  const [copied, setCopied] = useState(false);
   const startedAt = useRef<number>(Date.now());
-  const headingRef = useRef<HTMLParagraphElement>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     startedAt.current = Date.now();
@@ -86,92 +107,116 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
 
   const set = <K extends keyof Values>(key: K, value: Values[K]) => {
     setValues((current) => ({ ...current, [key]: value }));
-    setError(null);
+    setErrors([]);
   };
 
-  /* Ausweichweg, falls der Serverversand nicht eingerichtet ist */
-  const mailtoHref = useMemo(() => {
-    const serviceLabel =
-      services.find((entry) => entry.slug === values.service)?.label || "Allgemeine Anfrage";
-    const lines = [
-      `Leistung: ${serviceLabel}`,
-      `Umfang: ${values.scope || "Nicht angegeben"}`,
-      `Von: ${values.fromAddress || "Nicht angegeben"}${values.fromFloor ? `, ${values.fromFloor}` : ""}`,
-      `Nach: ${values.toAddress || "Nicht angegeben"}${values.toFloor ? `, ${values.toFloor}` : ""}`,
-      `Wunschtermin: ${values.date || "Nicht angegeben"}${values.flexible ? " (flexibel)" : ""}`,
-      "",
-      `Name: ${values.name}`,
-      `E-Mail: ${values.email || "Nicht angegeben"}`,
-      `Telefon: ${values.phone || "Nicht angegeben"}`,
-      "",
-      values.message || "",
-    ];
+  const hasError = (field: FieldError) => errors.includes(field);
 
-    return `mailto:${site.contact.email}?subject=${encodeURIComponent(
-      `Anfrage: ${serviceLabel}`,
-    )}&body=${encodeURIComponent(lines.join("\n"))}`;
-  }, [values]);
+  const serviceLabel =
+    services.find((entry) => entry.slug === values.service)?.label ||
+    (values.service === "sonstiges" ? "Etwas anderes" : "Allgemeine Anfrage");
+
+  /* Klartext der Anfrage, fuer Mailprogramm und Zwischenablage */
+  const plainText = useMemo(
+    () =>
+      [
+        `Anfrage: ${serviceLabel}`,
+        `Umfang: ${values.scope || "Nicht angegeben"}`,
+        `Von: ${values.fromAddress || "Nicht angegeben"}${values.fromFloor ? `, ${values.fromFloor}` : ""}`,
+        `Nach: ${values.toAddress || "Nicht angegeben"}${values.toFloor ? `, ${values.toFloor}` : ""}`,
+        `Wunschtermin: ${values.date ? formatDateLong(values.date) : "Nicht angegeben"}${values.flexible ? " (flexibel)" : ""}`,
+        "",
+        `Name: ${values.name}`,
+        `E-Mail: ${values.email || "Nicht angegeben"}`,
+        `Telefon: ${values.phone || "Nicht angegeben"}`,
+        "",
+        values.message || "",
+      ].join("\n"),
+    [values, serviceLabel],
+  );
+
+  const mailtoHref = `mailto:${site.contact.email}?subject=${encodeURIComponent(
+    `Anfrage: ${serviceLabel}`,
+  )}&body=${encodeURIComponent(plainText)}`;
+
+  const errorMessage = (() => {
+    if (hasError("service")) return "Bitte wählen Sie aus, worum es geht.";
+    if (hasError("name")) return "Bitte geben Sie Ihren Namen an.";
+    if (hasError("contact")) return "Bitte hinterlassen Sie eine Telefonnummer oder eine E-Mail-Adresse.";
+    if (hasError("email")) return "Die E-Mail-Adresse sieht nicht vollständig aus.";
+    if (hasError("consent")) return "Ohne Ihre Einwilligung dürfen wir die Anfrage nicht bearbeiten.";
+    return null;
+  })();
+
+  const scrollToForm = () =>
+    formRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
 
   const goNext = () => {
     if (step === 0 && !values.service) {
-      setError("Bitte wählen Sie aus, worum es geht.");
+      setErrors(["service"]);
       return;
     }
-    setError(null);
+    setErrors([]);
     setStep((current) => Math.min(current + 1, steps.length - 1));
+    scrollToForm();
   };
 
   const goBack = () => {
-    setError(null);
+    setErrors([]);
     setStep((current) => Math.max(current - 1, 0));
+    scrollToForm();
+  };
+
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(plainText);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   };
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!values.name.trim()) {
-      setError("Bitte geben Sie Ihren Namen an.");
-      return;
-    }
-    if (!values.email.trim() && !values.phone.trim()) {
-      setError("Bitte hinterlassen Sie eine E-Mail-Adresse oder eine Telefonnummer.");
-      return;
-    }
-    if (!values.consent) {
-      setError("Ohne Ihre Einwilligung dürfen wir die Anfrage nicht verarbeiten.");
+    const found: FieldError[] = [];
+    if (!values.name.trim()) found.push("name");
+    if (!values.email.trim() && !values.phone.trim()) found.push("contact");
+    if (values.email.trim() && !isEmail(values.email.trim())) found.push("email");
+    if (!values.consent) found.push("consent");
+
+    if (found.length) {
+      setErrors(found);
       return;
     }
 
     setStatus("sending");
-    setError(null);
+    setErrors([]);
 
     try {
       const response = await fetch("/api/anfrage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, startedAt: startedAt.current }),
+        body: JSON.stringify({
+          ...values,
+          date: values.date ? formatDateLong(values.date) : "",
+          startedAt: startedAt.current,
+        }),
       });
 
-      const data = (await response.json()) as {
-        ok: boolean;
-        configured?: boolean;
-        error?: string;
-      };
+      const data = (await response.json()) as { ok: boolean; configured?: boolean; error?: string };
 
       if (data.ok) {
         setStatus("sent");
+        scrollToForm();
         return;
       }
 
-      if (data.configured === false) {
-        setStatus("fallback");
-        return;
-      }
-
-      setStatus("idle");
-      setError(data.error || "Die Anfrage konnte nicht gesendet werden.");
+      setStatus("fallback");
+      scrollToForm();
     } catch {
       setStatus("fallback");
+      scrollToForm();
     }
   };
 
@@ -187,10 +232,10 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
           rufen Sie gern direkt an.
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <a href={telHref(site.contact.phoneHref)} className="btn btn-primary">
+          <PhoneAction className="btn btn-primary">
             <Phone aria-hidden="true" className="size-4" />
             {site.contact.phoneDisplay}
-          </a>
+          </PhoneAction>
           <Link href="/" className="btn btn-ghost">
             Zur Startseite
           </Link>
@@ -205,26 +250,50 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
         <span className="grid size-12 place-items-center rounded-full border border-brand-400/35 bg-brand-500/15">
           <CircleAlert aria-hidden="true" className="size-6 text-brand-300" />
         </span>
-        <h2 className="mt-5 font-display text-2xl">Senden gerade nicht möglich</h2>
+        <h2 className="mt-5 font-display text-2xl">Online-Versand gerade nicht möglich</h2>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-mist-300">
-          Ihre Angaben sind nicht verloren. Über die folgende Schaltfläche öffnet sich Ihr
-          E-Mail-Programm mit allem, was Sie eingetragen haben. Alternativ erreichen Sie uns
-          telefonisch.
+          Ihre Angaben sind nicht verloren. Kopieren Sie sie mit einem Klick und fügen Sie sie in
+          eine E-Mail an{" "}
+          <span className="font-semibold text-mist-100">{site.contact.email}</span> ein, oder
+          öffnen Sie direkt Ihr Mailprogramm. Telefonisch sind wir ebenso erreichbar.
         </p>
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <a href={mailtoHref} className="btn btn-primary">
+
+        <pre className="mt-6 max-h-56 overflow-auto rounded-2xl border border-white/10 bg-white/4 p-4 font-sans text-xs leading-relaxed whitespace-pre-wrap text-mist-300">
+          {plainText}
+        </pre>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <button type="button" onClick={copyText} className="btn btn-primary">
+            {copied ? (
+              <>
+                <Check aria-hidden="true" className="size-4" />
+                Kopiert
+              </>
+            ) : (
+              <>
+                <ClipboardCopy aria-hidden="true" className="size-4" />
+                Angaben kopieren
+              </>
+            )}
+          </button>
+          <a href={mailtoHref} className="btn btn-ghost">
             <Mail aria-hidden="true" className="size-4" />
-            Als E-Mail öffnen
+            Mailprogramm
           </a>
-          <a href={telHref(site.contact.phoneHref)} className="btn btn-ghost">
+          <PhoneAction className="btn btn-ghost">
             <Phone aria-hidden="true" className="size-4" />
-            {site.contact.phoneDisplay}
-          </a>
+            Anrufen
+          </PhoneAction>
         </div>
+
+        <p aria-live="polite" className="sr-only">
+          {copied ? "Angaben in die Zwischenablage kopiert" : ""}
+        </p>
+
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="link-underline mt-6 text-sm"
+          className="link-underline mt-6 cursor-pointer text-sm"
         >
           Zurück zum Formular
         </button>
@@ -233,12 +302,18 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="glass-strong rounded-card p-6 sm:p-8">
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      noValidate
+      aria-describedby="form-hinweis"
+      className="glass-strong scroll-mt-28 rounded-card p-6 sm:p-8"
+    >
       {/* Fortschritt */}
       <div className="mb-8">
         <ol className="flex items-center gap-2">
           {steps.map((entry, index) => (
-            <li key={entry.id} className="flex flex-1 items-center gap-2">
+            <li key={entry.id} className="flex flex-1 items-center gap-2 last:flex-none">
               <span
                 className={cn(
                   "grid size-8 shrink-0 place-items-center rounded-full border text-xs font-bold transition-colors duration-300",
@@ -258,15 +333,31 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                 {entry.label}
               </span>
               {index < steps.length - 1 ? (
-                <span aria-hidden="true" className="h-px flex-1 bg-white/12" />
+                <span aria-hidden="true" className="relative h-px flex-1 overflow-hidden bg-white/12">
+                  <motion.span
+                    className="absolute inset-0 origin-left bg-brand-400"
+                    initial={false}
+                    animate={{ scaleX: index < step ? 1 : 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </span>
               ) : null}
             </li>
           ))}
         </ol>
-        <p ref={headingRef} className="sr-only" aria-live="polite">
+        <p className="sr-only" aria-live="polite">
           Schritt {step + 1} von {steps.length}: {steps[step].label}
         </p>
       </div>
+
+      {values.message.startsWith("Ladeliste:") && step === 0 ? (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brand-400/30 bg-brand-500/10 p-4">
+          <Truck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand-300" />
+          <p className="text-sm leading-relaxed text-mist-200">
+            Ihre Ladeliste ist übernommen und steht im letzten Schritt im Nachrichtenfeld.
+          </p>
+        </div>
+      ) : null}
 
       {/* Koederfeld gegen automatisierte Eintraege */}
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
@@ -288,95 +379,81 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
           initial={reduce ? false : { opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           exit={reduce ? { opacity: 0 } : { opacity: 0, x: -24 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
         >
           {step === 0 ? (
-            <fieldset>
+            <fieldset aria-invalid={hasError("service") || undefined}>
               <legend className="font-display text-xl">Worum geht es?</legend>
               <p className="mt-2 text-sm text-mist-300">
-                Wählen Sie die passende Leistung. Sie können später noch alles ergänzen.
+                Wählen Sie die passende Leistung. Alles Weitere können Sie danach ergänzen.
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {services.map((service) => {
-                  const selected = values.service === service.slug;
-                  return (
-                    <label
-                      key={service.slug}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors duration-250",
-                        selected
-                          ? "border-brand-400/60 bg-brand-500/12"
-                          : "border-white/12 bg-white/4 hover:border-white/25",
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="service"
-                        value={service.slug}
-                        checked={selected}
-                        onChange={() => set("service", service.slug)}
-                        className="sr-only"
-                      />
-                      <span
+              <div role="radiogroup" aria-label="Leistung" className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[...services.map((entry) => ({ value: entry.slug, label: entry.label, icon: entry.icon })), { value: "sonstiges", label: "Etwas anderes", icon: null }].map(
+                  (option) => {
+                    const selected = values.service === option.value;
+                    return (
+                      <label
+                        key={option.value}
                         className={cn(
-                          "grid size-10 shrink-0 place-items-center rounded-xl border transition-colors duration-250",
+                          "group relative flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-[background-color,border-color] duration-250",
                           selected
-                            ? "border-brand-400/40 bg-brand-500/20 text-brand-300"
-                            : "border-white/12 bg-white/5 text-mist-300",
+                            ? "border-brand-400/60 bg-brand-500/12"
+                            : hasError("service")
+                              ? "border-red-400/40 bg-white/4"
+                              : "border-white/12 bg-white/4 hover:border-white/25",
                         )}
                       >
-                        <ServiceIcon name={service.icon} className="size-5" />
-                      </span>
-                      <span className="text-sm font-semibold text-mist-50">{service.label}</span>
-                      {selected ? (
-                        <Check aria-hidden="true" className="ml-auto size-4 text-brand-300" />
-                      ) : null}
-                    </label>
-                  );
-                })}
-
-                <label
-                  className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors duration-250",
-                    values.service === "sonstiges"
-                      ? "border-brand-400/60 bg-brand-500/12"
-                      : "border-white/12 bg-white/4 hover:border-white/25",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="service"
-                    value="sonstiges"
-                    checked={values.service === "sonstiges"}
-                    onChange={() => set("service", "sonstiges")}
-                    className="sr-only"
-                  />
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/12 bg-white/5 text-mist-300">
-                    <CircleAlert aria-hidden="true" className="size-5" />
-                  </span>
-                  <span className="text-sm font-semibold text-mist-50">Etwas anderes</span>
-                </label>
+                        <input
+                          type="radio"
+                          name="service"
+                          value={option.value}
+                          checked={selected}
+                          onChange={() => set("service", option.value)}
+                          className="peer sr-only"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 rounded-2xl peer-focus-visible:shadow-[0_0_0_2px_#04070d,0_0_0_4.5px_var(--color-brand-400)]"
+                        />
+                        <span
+                          className={cn(
+                            "grid size-10 shrink-0 place-items-center rounded-xl border transition-colors duration-250",
+                            selected
+                              ? "border-brand-400/40 bg-brand-500/20 text-brand-300"
+                              : "border-white/12 bg-white/5 text-mist-300",
+                          )}
+                        >
+                          {option.icon ? (
+                            <ServiceIcon name={option.icon} className="size-5" />
+                          ) : (
+                            <CircleAlert aria-hidden="true" className="size-5" />
+                          )}
+                        </span>
+                        <span className="text-sm font-semibold text-mist-50">{option.label}</span>
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "ml-auto grid size-5 place-items-center rounded-full border transition-colors duration-250",
+                            selected ? "border-brand-400 bg-brand-400" : "border-white/30",
+                          )}
+                        >
+                          {selected ? <Check className="size-3 text-night-950" strokeWidth={3} /> : null}
+                        </span>
+                      </label>
+                    );
+                  },
+                )}
               </div>
 
-              <div className="mt-6">
-                <label className={labelClass} htmlFor="scope">
-                  Wie groß ist der Umfang?
-                </label>
-                <select
-                  id="scope"
-                  value={values.scope}
-                  onChange={(event) => set("scope", event.target.value)}
-                  className={cn(fieldClass, "appearance-none")}
-                >
-                  <option value="">Bitte wählen</option>
-                  {scopeOptions.map((option) => (
-                    <option key={option} value={option} className="bg-night-800">
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                id="scope"
+                label="Wie groß ist der Umfang?"
+                value={values.scope}
+                onChange={(value) => set("scope", value)}
+                options={scopeOptions}
+                className="mt-6"
+              />
             </fieldset>
           ) : null}
 
@@ -399,7 +476,7 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     placeholder="Straße und Ort"
                     value={values.fromAddress}
                     onChange={(event) => set("fromAddress", event.target.value)}
-                    className={fieldClass}
+                    className={cn(fieldClass, "border-white/12")}
                   />
                 </div>
                 <div>
@@ -412,7 +489,7 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     placeholder="z. B. 2. OG ohne Aufzug"
                     value={values.fromFloor}
                     onChange={(event) => set("fromFloor", event.target.value)}
-                    className={fieldClass}
+                    className={cn(fieldClass, "border-white/12")}
                   />
                 </div>
 
@@ -427,7 +504,7 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     placeholder="Straße und Ort oder Entsorgung"
                     value={values.toAddress}
                     onChange={(event) => set("toAddress", event.target.value)}
-                    className={fieldClass}
+                    className={cn(fieldClass, "border-white/12")}
                   />
                 </div>
                 <div>
@@ -440,34 +517,26 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     placeholder="z. B. Erdgeschoss"
                     value={values.toFloor}
                     onChange={(event) => set("toFloor", event.target.value)}
-                    className={fieldClass}
+                    className={cn(fieldClass, "border-white/12")}
                   />
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className={labelClass} htmlFor="date">
-                    Wunschtermin
-                  </label>
-                  <input
-                    id="date"
-                    type="date"
-                    value={values.date}
-                    onChange={(event) => set("date", event.target.value)}
-                    className={cn(fieldClass, "[color-scheme:dark]")}
-                  />
-                </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 sm:items-end">
+                <DatePicker
+                  id="date"
+                  label="Wunschtermin"
+                  value={values.date}
+                  onChange={(value) => set("date", value)}
+                />
 
-                <label className="flex cursor-pointer items-center gap-3 self-end rounded-2xl border border-white/12 bg-white/4 px-4 py-3.5">
-                  <input
-                    type="checkbox"
-                    checked={values.flexible}
-                    onChange={(event) => set("flexible", event.target.checked)}
-                    className="size-5 shrink-0 accent-[#ff9522]"
-                  />
-                  <span className="text-sm text-mist-200">Termin ist flexibel</span>
-                </label>
+                <Checkbox
+                  checked={values.flexible}
+                  onChange={(checked) => set("flexible", checked)}
+                  className="py-3.5"
+                >
+                  Termin ist flexibel
+                </Checkbox>
               </div>
             </fieldset>
           ) : null}
@@ -487,11 +556,12 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                   <input
                     id="name"
                     type="text"
-                    required
                     autoComplete="name"
+                    aria-required="true"
+                    aria-invalid={hasError("name") || undefined}
                     value={values.name}
                     onChange={(event) => set("name", event.target.value)}
-                    className={fieldClass}
+                    className={cn(fieldClass, hasError("name") ? "border-red-400/60" : "border-white/12")}
                   />
                 </div>
 
@@ -505,9 +575,10 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                       type="tel"
                       inputMode="tel"
                       autoComplete="tel"
+                      aria-invalid={hasError("contact") || undefined}
                       value={values.phone}
                       onChange={(event) => set("phone", event.target.value)}
-                      className={fieldClass}
+                      className={cn(fieldClass, hasError("contact") ? "border-red-400/60" : "border-white/12")}
                     />
                   </div>
                   <div>
@@ -516,15 +587,23 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     </label>
                     <input
                       id="email"
-                      type="email"
+                      type="text"
                       inputMode="email"
                       autoComplete="email"
+                      spellCheck={false}
+                      aria-invalid={hasError("contact") || hasError("email") || undefined}
                       value={values.email}
                       onChange={(event) => set("email", event.target.value)}
-                      className={fieldClass}
+                      className={cn(
+                        fieldClass,
+                        hasError("contact") || hasError("email") ? "border-red-400/60" : "border-white/12",
+                      )}
                     />
                   </div>
                 </div>
+                <p className="-mt-1 text-xs text-mist-400">
+                  Telefon oder E-Mail genügt, eins von beiden brauchen wir.
+                </p>
 
                 <div>
                   <label className={labelClass} htmlFor="message">
@@ -536,42 +615,44 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
                     placeholder="Besonderheiten, schwere Teile, enges Treppenhaus, Halteverbot"
                     value={values.message}
                     onChange={(event) => set("message", event.target.value)}
-                    className={cn(fieldClass, "resize-y")}
+                    className={cn(fieldClass, "resize-y border-white/12")}
                   />
                 </div>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/12 bg-white/4 p-4">
-                  <input
-                    type="checkbox"
-                    checked={values.consent}
-                    onChange={(event) => set("consent", event.target.checked)}
-                    className="mt-0.5 size-5 shrink-0 accent-[#ff9522]"
-                    required
-                  />
-                  <span className="text-sm leading-relaxed text-mist-300">
-                    Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage
-                    gespeichert und verarbeitet werden. Weitere Hinweise in der{" "}
-                    <Link href="/datenschutz" className="link-underline">
-                      Datenschutzerklärung
-                    </Link>
-                    . <span className="text-brand-300">*</span>
-                  </span>
-                </label>
+                <Checkbox
+                  checked={values.consent}
+                  onChange={(checked) => set("consent", checked)}
+                  required
+                  invalid={hasError("consent")}
+                >
+                  Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage gespeichert
+                  und verarbeitet werden. Weitere Hinweise in der{" "}
+                  <Link href="/datenschutz" className="link-underline">
+                    Datenschutzerklärung
+                  </Link>
+                  . <span className="text-brand-300">*</span>
+                </Checkbox>
               </div>
             </fieldset>
           ) : null}
         </motion.div>
       </AnimatePresence>
 
-      {error ? (
-        <p
-          role="alert"
-          className="mt-5 flex items-start gap-2.5 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-        >
-          <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-          {error}
-        </p>
-      ) : null}
+      <AnimatePresence>
+        {errorMessage ? (
+          <motion.p
+            key={errorMessage}
+            role="alert"
+            initial={reduce ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mt-5 flex items-start gap-2.5 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+          >
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+            {errorMessage}
+          </motion.p>
+        ) : null}
+      </AnimatePresence>
 
       <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
         {step > 0 ? (
@@ -590,7 +671,7 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
           <button
             type="submit"
             disabled={status === "sending"}
-            className="btn btn-primary sm:ml-auto disabled:opacity-70"
+            className="btn btn-primary disabled:opacity-70 sm:ml-auto"
           >
             <Send aria-hidden="true" className="size-4" />
             {status === "sending" ? "Wird gesendet" : "Anfrage senden"}
@@ -598,7 +679,7 @@ export default function QuoteForm({ initialService = "" }: { initialService?: st
         )}
       </div>
 
-      <p className="mt-5 text-xs leading-relaxed text-mist-500">
+      <p id="form-hinweis" className="mt-5 text-xs leading-relaxed text-mist-500">
         Pflichtfelder sind mit einem Sternchen markiert. Ihre Angaben werden ausschließlich zur
         Bearbeitung dieser Anfrage genutzt und nicht an Dritte weitergegeben.
       </p>

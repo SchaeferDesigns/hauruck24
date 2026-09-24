@@ -1,32 +1,32 @@
 import type { NextConfig } from "next";
 
-const securityHeaders = [
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-];
+/*
+ * Statischer Export fuer zwei Ziele, gesteuert von scripts/build.mjs:
+ *
+ * Live      NEXT_PUBLIC_BASE_PATH leer          Domainwurzel, Export nach out/
+ * Vorschau  NEXT_PUBLIC_BASE_PATH=/demo/...     Unterordner, Export nach out/
+ *           oder ueber npm run build:vorschau   Export nach out-vorschau/
+ *
+ * npm run dev nutzt dieselbe Konfiguration ohne Basispfad.
+ */
+
+const basePath = (() => {
+  const trimmed = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").trim().replace(/^\/+|\/+$/g, "");
+  return trimmed ? `/${trimmed}` : "";
+})();
+
+/* Nur das Build-Skript setzt diesen Wert. Bei output "export" wird ein eigenes
+   distDir von Next.js direkt als Export-Ordner verwendet, gebaut wird in .next. */
+const exportDir = process.env.HAURUCK_EXPORT_DIR?.trim();
 
 const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  ...(basePath ? { basePath } : {}),
+  ...(exportDir ? { distDir: exportDir } : {}),
   reactStrictMode: true,
   poweredByHeader: false,
-  compress: true,
-  images: {
-    formats: ["image/avif", "image/webp"],
-  },
-  /* Die Rechtstexte werden zur Laufzeit aus dem Dateisystem gelesen
-     und muessen deshalb im Deployment enthalten sein. */
-  outputFileTracingIncludes: {
-    "/impressum": ["./src/content/legal/**"],
-    "/datenschutz": ["./src/content/legal/**"],
-    "/agb": ["./src/content/legal/**"],
-    "/widerruf": ["./src/content/legal/**"],
-  },
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

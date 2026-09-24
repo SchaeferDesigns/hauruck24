@@ -5,22 +5,23 @@
   "description": "Website Hauruck24 & Co, Schwaebisch Gmuend",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "node scripts/build.mjs",
+    "build:vorschau": "node scripts/build.mjs --vorschau",
+    "start": "node scripts/serve.mjs out",
+    "check:live": "node scripts/check-build.mjs out --live",
+    "check:vorschau": "node scripts/check-build.mjs out-vorschau --vorschau --base /demo/hauruck24",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "1.47.0",
     "motion": "13.4.0",
     "next": "^16.2.12",
-    "nodemailer": "10.0.10",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.2",
-    "@types/nodemailer": "8.0.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "playwright": "^1.63.0",

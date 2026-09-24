@@ -25,7 +25,7 @@ function readLegalHtml(slug: LegalSlug) {
    zum Beispiel href="/impressum/" zu href="/demo/hauruck24/impressum/". */
 function withBasePath(html: string) {
   if (!BASE_PATH) return html;
-  return html.replace(/(href|src)=(["'])\/(?!\/)/g, `$1=$2${BASE_PATH}/`);
+  return html.replace(/\b(href|src)=(["'])\/(?!\/)/g, `$1=$2${BASE_PATH}/`);
 }
 
 export default function LegalDocument({ slug }: { slug: LegalSlug }) {

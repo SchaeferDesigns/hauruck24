@@ -68,8 +68,9 @@ verschickt eine E-Mail über SMTP.
 2. Zugangsdaten des eigenen Mailhosters eintragen
 3. Server neu starten
 
-Ohne Zugangsdaten bleibt das Formular funktionsfähig: es bietet dann den
-Versand über das E-Mail-Programm des Besuchers an und zeigt die Telefonnummer.
+Ohne Zugangsdaten bleibt das Formular funktionsfähig: es zeigt dann alle
+Angaben an und bietet "Angaben kopieren", das Mailprogramm und den Anruf als
+Wege an. Es erscheint kein Browser-Dialog.
 
 Schutz gegen automatisierte Einträge: unsichtbares Köderfeld, Mindestdauer bis
 zum Absenden und eine Begrenzung auf fünf Anfragen je IP in 15 Minuten.

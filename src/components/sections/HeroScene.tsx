@@ -44,45 +44,6 @@ export function SceneTown({ className }: { className?: string }) {
   );
 }
 
-export function SceneRoute({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 520 420" className={className} aria-hidden="true" fill="none">
-      <defs>
-        <linearGradient id="route" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffd08a" />
-          <stop offset="100%" stopColor="#46dcc0" />
-        </linearGradient>
-      </defs>
-
-      {/* Weg von A nach B */}
-      <path
-        d="M70 348C70 250 150 214 246 214s176-34 176-132"
-        stroke="url(#route)"
-        strokeWidth="2.5"
-        strokeDasharray="10 12"
-        strokeLinecap="round"
-        opacity="0.75"
-      >
-        <animate
-          attributeName="stroke-dashoffset"
-          from="0"
-          to="-220"
-          dur="9s"
-          repeatCount="indefinite"
-        />
-      </path>
-
-      {/* Startpunkt */}
-      <circle cx="70" cy="348" r="9" fill="#ffb454" />
-      <circle cx="70" cy="348" r="18" stroke="#ffb454" strokeOpacity="0.4" strokeWidth="1.5" />
-
-      {/* Zielpunkt */}
-      <circle cx="422" cy="82" r="9" fill="#46dcc0" />
-      <circle cx="422" cy="82" r="18" stroke="#46dcc0" strokeOpacity="0.4" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
 export function SceneBoxes({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 320 260" className={className} aria-hidden="true">

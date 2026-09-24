@@ -10,7 +10,7 @@
  * den Build mit Fehler.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkBuild, normalizeBase, readLegacy, readSiteUrl } from "./check-build.mjs";

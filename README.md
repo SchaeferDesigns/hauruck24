@@ -37,6 +37,8 @@ Alle Texte und Daten liegen zentral in `src/content`:
 | `services.ts`         | Die fünf Leistungen inklusive Detailseiten und Fragen       |
 | `faq.ts`              | Allgemeine Fragen und Antworten                             |
 | `areas.ts`            | Einsatzgebiet, Orte nach Gruppen                            |
+| `process.ts`          | Die vier Ablauf-Schritte (Sie tun, wir tun, Details)        |
+| `loadItems.ts`        | Gegenstände für "Packen Sie den Wagen"                      |
 | `legal/*.html`        | Rechtstexte, siehe unten                                    |
 
 Änderungen an diesen Dateien wirken automatisch auf Seiten, Navigation, Footer,
@@ -72,6 +74,37 @@ Versand über das E-Mail-Programm des Besuchers an und zeigt die Telefonnummer.
 Schutz gegen automatisierte Einträge: unsichtbares Köderfeld, Mindestdauer bis
 zum Absenden und eine Begrenzung auf fünf Anfragen je IP in 15 Minuten.
 
+## Gestaltungsregeln
+
+**Glas (Blur statt Tint)**
+
+- `glass`, `glass-strong` und `glass-soft` tragen echten Blur.
+- Nie Glas in Glas verschachteln. Ein Element mit `backdrop-filter` wird zur
+  "Backdrop Root", verschachteltes Glas sieht dann nur noch dessen Inhalt und
+  wirkt flach. Innere Flächen nutzen `surface` oder `surface-strong`.
+- Kein Vorfahre einer Glasfläche darf `opacity` unter 1, `filter`, `mask` oder
+  `clip-path` tragen. Einblend-Animationen laufen deshalb auf dem Glas selbst
+  (`Reveal` animiert sein direktes Kind, `.enter` für den ersten Bildschirm).
+- Schwebende Panels (Auswahlliste, Kalender, Kontakt-Panel) werden per Portal
+  in `body` gerendert, damit sie außerhalb jeder Glaskarte liegen.
+- Prüfung: `node tools/blur-audit.mjs /pfad 1440 1000 [none|dropdown|menu]`
+  meldet jede Glasfläche, deren Blur durch einen Vorfahren gebrochen wird.
+
+**Keine Browser-Dialoge**
+
+- Formulare mit `noValidate` und eigenen Fehlermeldungen.
+- Telefon und E-Mail über `PhoneAction` und `MailAction`: am Rechner ein
+  eigenes Panel mit Kopieren und ausdrücklichem Öffnen der App, auf Touch
+  direktes Wählen.
+- Eigene Auswahllisten (`forms/Select`), Checkboxen (`forms/Checkbox`) und
+  Kalender (`forms/DatePicker`) statt nativer Browser-Elemente.
+
+**Hover nur mit echtem Zeiger**
+
+Hover-Effekte stehen in `@media (hover: hover) and (pointer: fine)`, damit auf
+Touch-Geräten nichts hängen bleibt. Bewegung über die Eigenschaften
+`translate` und `scale`, damit sie nie mit Einblend-Animationen kollidiert.
+
 ## Datenschutz
 
 - Keine Cookies, kein Tracking, keine Werbenetzwerke
@@ -95,7 +128,12 @@ Vor dem Livegang anzupassen:
 
 ```bash
 node tools/shot.mjs /leistungen/umzug umzug 1440 1000 full
+node tools/interactions.mjs
+node tools/blur-audit.mjs / 1440 1000 dropdown
 ```
 
-Erzeugt einen Screenshot unter `tools/screens`. Der Ordner ist von der
-Versionierung ausgenommen.
+`shot.mjs` erzeugt einen Screenshot unter `tools/screens`, `interactions.mjs`
+klickt Navbar, Wagen, Ablauf, Formular und Handy-Menü durch und meldet
+Browser-Dialoge und JavaScript-Fehler. Der Screenshot-Ordner ist von der
+Versionierung ausgenommen. In Git Bash vor die Befehle `MSYS_NO_PATHCONV=1`
+setzen, sonst wird der Pfad `/` umgeschrieben.
